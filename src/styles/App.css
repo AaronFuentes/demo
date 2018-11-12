@@ -30,3 +30,10 @@
     transform: rotate(360deg);
   }
 }
+
+.overflowText {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+

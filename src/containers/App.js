@@ -10,6 +10,7 @@ import TrackingPage from '../components/TrackingPage';
 import RegisterPage from '../components/RegisterPage';
 import ShippingPage from '../components/ShippingPage';
 import DeliveryPage from '../components/DeliveryPage';
+import "antd/dist/antd.css";
 export const LoginContext = React.createContext();
 const Accounts = require('web3-eth-accounts');
 const accounts = new Accounts();

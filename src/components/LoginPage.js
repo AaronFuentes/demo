@@ -7,17 +7,18 @@ const Accounts = require('web3-eth-accounts');
 const accounts = new Accounts();
 const account = accounts.create();
 
-console.log(account);
+/* console.log(account);
 const encryptedAccount = account.encrypt('');
 console.log(encryptedAccount);
 const decrypted = accounts.decrypt(encryptedAccount, '');
-console.log(decrypted);
+console.log(decrypted); */
 
 const LoginPage = () => {
+    const [loading, updateLoading] = React.useState(false);
     const credentialsContext = React.useContext(LoginContext);
-    console.log(credentialsContext);
 
     const handleFile = async event => {
+        updateLoading(true);
 		const file = event.nativeEvent.target.files[0];
 		if (!file) {
 			return;
@@ -30,21 +31,21 @@ const LoginPage = () => {
             const content = event.srcElement.result;
             const json = JSON.parse(content);
             const decrypted = accounts.decrypt(json, '');
-            //console.log(decrypted);
+            updateLoading(false);
             if(decrypted.privateKey){
                 credentialsContext.loginUser(decrypted);
             }
 		};
     };
 
-    const downloadCreds = () => {
+/*     const downloadCreds = () => {
         console.log('descargar');
         const a = document.createElement('a');
         const file = new Blob([JSON.stringify(encryptedAccount)], {type: 'text/plain'});
         a.href = URL.createObjectURL(file);
         a.download = 'creds.txt';
         a.click();
-    }
+    } */
 
     return(
         <div
@@ -75,6 +76,7 @@ const LoginPage = () => {
                         marginTop: "2em",
                         width: "100%"
                     }}
+                    loading={loading}
                     buttonStyle={{ width: "100%" }}
                     color={primary}
                     textStyle={{

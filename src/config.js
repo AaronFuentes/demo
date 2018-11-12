@@ -1,0 +1,1 @@
+export const LOCATION_INTERVAL = 2000;

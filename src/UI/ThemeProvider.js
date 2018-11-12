@@ -4,7 +4,7 @@ import { primary, secondary } from "../styles/colors";
 
 const theme = createMuiTheme({
 	palette: {
-		type: 'dark',
+		type: 'light',
 		primary: {
 			main: primary
 		},

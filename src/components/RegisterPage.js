@@ -25,7 +25,6 @@ const RegisterPage = ({ history }) => {
     }
 
     const cleanForm = () => {
-        console.log('clean');
         setProduct(null);
         updateBarcode('');
         setCode(null)
@@ -36,7 +35,6 @@ const RegisterPage = ({ history }) => {
             product
         });
 
-        console.log(response);
         setCode(JSON.stringify(response));
     }
 

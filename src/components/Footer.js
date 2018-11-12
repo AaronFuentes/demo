@@ -12,7 +12,7 @@ const Footer = props => (
             dangerouslySetInnerHTML={{ __html: `&mdash;`}}
         />
         <a href="https://github.com/Councilbox" style={{marginLeft: '0.2em', marginRight: '0.2em', color: darkGrey}}>
-           <i className="fa fa-github" aria-hidden="true" style={{color: darkGrey, marginLeft: '0.2em'}}></i>
+           <i className="fab fa-github" aria-hidden="true" style={{color: darkGrey, marginLeft: '0.2em'}}></i>
         </a>
     </div>
 )

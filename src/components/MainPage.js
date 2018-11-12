@@ -9,15 +9,13 @@ const MainPage = () => {
     const userContext = React.useContext(LoginContext);
 
     const width = window.innerWidth < 600? '100%' : '600px';
-    navigator.geolocation.getCurrentPosition(location => console.log(location));
+    //navigator.geolocation.getCurrentPosition(location => console.log(location));
 
     const sendSigned = () => {
-        console.log(userContext.credentials);
         const signed = userContext.credentials.sign(JSON.stringify({
             prueba: 'con cosas'
         }));
 
-        console.log(signed);
     }
 
     return (
