@@ -1,7 +1,7 @@
 import React from 'react';
 import '../styles/App.css';
 import Header from '../components/Header';
-import { Route, BrowserRouter, Switch } from "react-router-dom";
+import { Route, BrowserRouter, Switch, Redirect } from "react-router-dom";
 import MainPage from '../components/MainPage';
 import LoginPage from '../components/LoginPage';
 import { HEADER_HEIGHT } from '../constants';
@@ -14,11 +14,15 @@ export const LoginContext = React.createContext();
 const Accounts = require('web3-eth-accounts');
 const accounts = new Accounts();
 
+
+
 class App extends React.Component {
 
     state = {
         credentials: null
     }
+
+    goToRoot = () => <Redirect to="/" />
 
     componentDidMount(){
         const creds = localStorage.getItem('creds');
@@ -65,10 +69,12 @@ class App extends React.Component {
                                             <Route path="/shipping" component={ShippingPage} />
                                             <Route path="/delivery" component={DeliveryPage} />
                                             <Route path="/tracking" component={TrackingPage} />
+                                            <Route path="*" component={this.goToRoot} />
                                         </Switch>
                                     :
                                         <Switch>
                                             <Route exact path="/" component={LoginPage} />
+                                            <Route path="*" component={this.goToRoot} />
                                         </Switch>
                                     }
                             </BrowserRouter>

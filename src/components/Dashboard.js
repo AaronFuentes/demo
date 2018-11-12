@@ -16,6 +16,7 @@ const blockStyle = {
     fontWeight: '700',
     display: 'flex',
     alignItems: 'center',
+    flexDirection: 'column',
     justifyContent: 'center'
 }
 
@@ -25,6 +26,7 @@ const Dashboard = () => {
             <GridItem xs={12} md={6} lg={6} style={container}>
                 <Link to="/register">
                     <Paper style={blockStyle}>
+                        <i className="fas fa-folder-plus" style={{fontSize: '80px'}}></i>
                         Registro de producto
                     </Paper>
                 </Link>
@@ -32,6 +34,7 @@ const Dashboard = () => {
             <GridItem xs={12} md={6} lg={6} style={container}>
                 <Link to="/shipping">
                     <Paper style={blockStyle}>
+                        <i className="far fa-list-alt" style={{fontSize: '80px'}}></i>
                         Registro de carga/descarga
                     </Paper>
                 </Link>
@@ -39,6 +42,7 @@ const Dashboard = () => {
             <GridItem xs={12} md={6} lg={6} style={container}>
                 <Link to="/delivery">
                     <Paper style={blockStyle}>
+                        <i className="fas fa-check" style={{fontSize: '80px'}}></i>
                         Registro de recibo
                     </Paper>
                 </Link>
@@ -46,6 +50,7 @@ const Dashboard = () => {
             <GridItem xs={12} md={6} lg={6} style={container}>
                 <Link to="/tracking">
                     <Paper style={blockStyle}>
+                        <i className="fas fa-list-ol" style={{fontSize: '80px'}}></i>
                         Tracking
                     </Paper>
                 </Link>

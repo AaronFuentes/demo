@@ -34,9 +34,6 @@ const MainPage = () => {
             <div style={{width: '90%', marginTop: '8em', marginBottom: '2em'}}>
                 <Dashboard />
             </div>
-            <div onClick={sendSigned}>
-                HOLA
-            </div>
             <Footer />
         </div>
     )
