@@ -1,23 +1,11 @@
 import React from 'react';
 import { lightGrey } from '../styles/colors';
-import { Paper } from 'material-ui';
 import Footer from './Footer';
-import { LoginContext } from '../containers/App';
+import { MainAppContext } from '../containers/App';
 import Dashboard from './Dashboard';
 
 const MainPage = () => {
-    const userContext = React.useContext(LoginContext);
-
-    const width = window.innerWidth < 600? '100%' : '600px';
-    //navigator.geolocation.getCurrentPosition(location => console.log(location));
-
-    const sendSigned = () => {
-        const signed = userContext.credentials.sign(JSON.stringify({
-            prueba: 'con cosas'
-        }));
-
-    }
-
+    const userContext = React.useContext(MainAppContext);
     return (
         <div
             style={{
@@ -38,3 +26,23 @@ const MainPage = () => {
 }
 
 export default MainPage;
+
+/* 
+const sendSigned = () => {
+    const signed = userContext.credentials.sign(JSON.stringify({
+        data: {
+            expirationDate: 'DKEDKKEKDKE',
+            barcode: '3123567678',
+            batch: 'AE23GH',
+            euCode: 'EU/1233446/27',
+            ingredients: 'Cosas, y más',
+            name: 'Queso',
+            other: '',
+            producer: 'Queseria',
+            weight: '400gr'
+        },
+        type: 'registration'
+    }));
+    console.log(signed);
+
+} */

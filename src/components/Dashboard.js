@@ -23,7 +23,7 @@ const blockStyle = {
 const Dashboard = () => {
     return(
         <Grid>
-            <GridItem xs={12} md={6} lg={6} style={container}>
+            <GridItem xs={12} md={4} lg={4} style={container}>
                 <Link to="/register">
                     <Paper style={blockStyle}>
                         <i className="fas fa-folder-plus" style={{fontSize: '80px'}}></i>
@@ -31,7 +31,7 @@ const Dashboard = () => {
                     </Paper>
                 </Link>
             </GridItem>
-            <GridItem xs={12} md={6} lg={6} style={container}>
+            <GridItem xs={12} md={4} lg={4} style={container}>
                 <Link to="/shipping">
                     <Paper style={blockStyle}>
                         <i className="far fa-list-alt" style={{fontSize: '80px'}}></i>
@@ -39,15 +39,15 @@ const Dashboard = () => {
                     </Paper>
                 </Link>
             </GridItem>
-            <GridItem xs={12} md={6} lg={6} style={container}>
+{/*             <GridItem xs={12} md={6} lg={6} style={container}>
                 <Link to="/delivery">
                     <Paper style={blockStyle}>
                         <i className="fas fa-check" style={{fontSize: '80px'}}></i>
                         Registro de recibo
                     </Paper>
                 </Link>
-            </GridItem>
-            <GridItem xs={12} md={6} lg={6} style={container}>
+            </GridItem> */}
+            <GridItem xs={12} md={4} lg={4} style={container}>
                 <Link to="/tracking">
                     <Paper style={blockStyle}>
                         <i className="fas fa-list-ol" style={{fontSize: '80px'}}></i>

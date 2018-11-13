@@ -2,7 +2,7 @@ import React from 'react';
 import { lightGrey, primary } from '../styles/colors';
 import { Paper } from 'material-ui';
 import FileUploadButton from '../UI/FileUploadButton';
-import { LoginContext } from '../containers/App';
+import { MainAppContext } from '../containers/App';
 const Accounts = require('web3-eth-accounts');
 const accounts = new Accounts();
 const account = accounts.create();
@@ -15,7 +15,7 @@ console.log(decrypted); */
 
 const LoginPage = () => {
     const [loading, updateLoading] = React.useState(false);
-    const credentialsContext = React.useContext(LoginContext);
+    const credentialsContext = React.useContext(MainAppContext);
 
     const handleFile = async event => {
         updateLoading(true);
@@ -35,6 +35,11 @@ const LoginPage = () => {
             if(decrypted.privateKey){
                 credentialsContext.loginUser(decrypted);
             }
+/*             const a = document.createElement('a');
+            const file = new Blob([JSON.stringify(decrypted.encrypt(''))], {type: 'text/plain'});
+            a.href = URL.createObjectURL(file);
+            a.download = 'creds.txt';
+            a.click(); */
 		};
     };
 

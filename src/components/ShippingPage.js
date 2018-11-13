@@ -1,28 +1,31 @@
 import React from 'react';
 import { lightGrey, primary, secondary } from '../styles/colors';
-import { LOCATION_INTERVAL } from '../config';
 import { Paper } from 'material-ui';
 import { withRouter } from 'react-router-dom';
 import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
 import ProductsList from './ProductsList';
+import { MainAppContext, getLoadedItems } from '../containers/App';
 
 let loadCounter = 0;
 let unloadCounter = 5;
-let interval = null;
 let timeout = null;
+let location;
+navigator.geolocation.getCurrentPosition(result => location = result);
 
 const ShippingPage = ({ history }) => {
 
-    const [products, updateProducts] = React.useState(new Map());
+    const [products, updateProducts] = React.useState(getLoadedItems());
     const [qrCode, updateQRcode] = React.useState('');
-    const [inTransit, updateInTransit] = React.useState(false);
+    const mainApp = React.useContext(MainAppContext);
+    console.log(mainApp);
 
 
     const setQRCode = event => {
         clearTimeout(timeout);
+        const value = event.target.value;
         updateQRcode(event.target.value);
-        timeout = setTimeout(searchQRData, 450);
+        timeout = setTimeout(() => searchQRData(value), 450);
     }
 
     const goBack = () => {
@@ -30,24 +33,26 @@ const ShippingPage = ({ history }) => {
     }
 
     const confirmDeparture = () => {
-        interval = setInterval(() => navigator.geolocation.getCurrentPosition(location => console.log(location)), LOCATION_INTERVAL);
-        updateInTransit(true);
+        mainApp.startInTransit();
     }
 
     const confirmArrive = () => {
-        clearInterval(interval);
-        updateInTransit(false);
+        mainApp.stopInTransit();
     }
 
-    const searchQRData = async () => {
+    const searchQRData = async qr => {
         if(products.has('#12345' + unloadCounter)){
             products.delete('#12345' + unloadCounter);
             updateProducts(new Map(products.entries()));
+            const response = await sendProductLoadIn(extractHash(`c5ce2e6f3b05333009d473523815000225b6e11218ca4d0a2df79c2096d679d1`), mainApp.credentials, 'delivered');
+            localStorage.setItem('loadedItems', JSON.stringify(Array.from(products.entries())));
             unloadCounter--;
         } else {
-            const response = await getProduct();
+            //EN LA RESPUESTA NECESITO LOS DATOS DEL PRODUCTO
+            const response = await sendProductLoadIn(extractHash(qrCode), mainApp.credentials, 'loadUp');
             if(response){
                 products.set(response.hash, response);
+                localStorage.setItem('loadedItems', JSON.stringify(Array.from(products.entries())));
                 updateProducts(new Map(products.entries()));
                 loadCounter++;
             }
@@ -103,18 +108,46 @@ const ShippingPage = ({ history }) => {
                     onClick={goBack}
                 />
                 <BasicButton
-                    text={inTransit? "Confirmar llegada" : "Confirmar salida"}
+                    text={mainApp.inTransit? "Confirmar llegada" : "Confirmar salida"}
                     color={primary}
                     textStyle={{fontWeight: '700', color: 'white'}}
                     buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
-                    onClick={inTransit? confirmArrive : confirmDeparture}
+                    onClick={mainApp.inTransit? confirmArrive : confirmDeparture}
                 />
             </Paper>
         </div>
     )
 }
 
-const getProduct = qr => {
+const sendProductLoadIn = async (data, account, type) => {
+
+
+    navigator.geolocation.getCurrentPosition(result => location = result);
+
+    const signedMessage = account.sign(JSON.stringify({
+        data: {
+            coords: {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude
+            },
+        },
+        type: type
+    }));
+
+    console.log(signedMessage.message);
+    console.log(signedMessage.signature);
+
+    const response = await fetch(`http://172.18.2.99:8080/api/v1.0/product/${data}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            message: signedMessage.message,
+            signature: signedMessage.signature
+        })
+    })
+
+    const json = await response.json();
+    console.log(json);
+
     return new Promise((resolve, reject) => {
         resolve({
             name: 'Ejemplo de producto',
@@ -124,6 +157,13 @@ const getProduct = qr => {
             hash: '#12345' + loadCounter
         })
     })
+}
+
+const extractHash = url => {
+    return url;
+    const index = url.indexOf('0x');
+    let hash = url.substr(index);
+    return hash;
 }
 
 export default withRouter(ShippingPage);

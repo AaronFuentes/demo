@@ -1,11 +1,11 @@
 import React from 'react';
 import { HEADER_HEIGHT } from '../constants';
 import { darkGrey } from '../styles/colors';
-import { LoginContext } from '../containers/App';
+import { MainAppContext } from '../containers/App';
 import UserMenu from './UserMenu';
 
 const Header = () => {
-    const login = React.useContext(LoginContext);
+    const login = React.useContext(MainAppContext);
 
     return (
         <header

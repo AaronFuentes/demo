@@ -1,11 +1,21 @@
 import React from 'react';
-import { lightGrey, primary, secondary } from '../styles/colors';
-import { Paper } from 'material-ui';
 import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
 import { withRouter } from 'react-router-dom';
+import { Paper } from 'material-ui';
+import { lightGrey } from '../styles/colors';
 
-const DeliveryPage = ({ history }) => {
+const EnterTrackingHashForm = ({ history }) => {
+
+    const [hash, updateHash] = React.useState('');
+
+    const enterCode = hash => {
+        history.push(`/tracking/${hash}`);
+    }
+
+    const simulateRead = () => {
+        enterCode('0x12323123');
+    }
 
     const goBack = () => {
         history.goBack();
@@ -32,10 +42,11 @@ const DeliveryPage = ({ history }) => {
                 }}
             >
                 <h3>
-                    CONFIRMACION DE RECIBO
+                    INTRODUCIR HASH
                 </h3>
                 <BasicButton
                     text="Simular lectura"
+                    onClick={simulateRead}
                 />
 
                 <TextInput
@@ -55,4 +66,4 @@ const DeliveryPage = ({ history }) => {
     )
 }
 
-export default withRouter(DeliveryPage);
+export default withRouter(EnterTrackingHashForm);
