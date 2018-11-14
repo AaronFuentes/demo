@@ -6,6 +6,7 @@ import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
 import ProductsList from './ProductsList';
 import { MainAppContext, getLoadedItems } from '../containers/App';
+import { API_URL } from '../config';
 
 let loadCounter = 0;
 let unloadCounter = 5;
@@ -41,17 +42,20 @@ const ShippingPage = ({ history }) => {
     }
 
     const searchQRData = async qr => {
-        if(products.has('#12345' + unloadCounter)){
-            products.delete('#12345' + unloadCounter);
+        const hash = extractHash(qr);
+        if(products.has(hash)){
+            products.delete(hash);
             updateProducts(new Map(products.entries()));
-            const response = await sendProductLoadIn(extractHash(`c5ce2e6f3b05333009d473523815000225b6e11218ca4d0a2df79c2096d679d1`), mainApp.credentials, 'delivered');
+            const response = await sendProductLoadIn(hash, mainApp.credentials, 'delivered');
+            console.log(response);
             localStorage.setItem('loadedItems', JSON.stringify(Array.from(products.entries())));
             unloadCounter--;
         } else {
             //EN LA RESPUESTA NECESITO LOS DATOS DEL PRODUCTO
-            const response = await sendProductLoadIn(extractHash(qrCode), mainApp.credentials, 'loadUp');
+            const response = await sendProductLoadIn(hash, mainApp.credentials, 'loadUp');
             if(response){
-                products.set(response.hash, response);
+                console.log(response);
+                products.set(hash, response);
                 localStorage.setItem('loadedItems', JSON.stringify(Array.from(products.entries())));
                 updateProducts(new Map(products.entries()));
                 loadCounter++;
@@ -60,7 +64,7 @@ const ShippingPage = ({ history }) => {
     }
 
     const simulateRead = () => {
-        searchQRData();
+        searchQRData('123423423');
     }
 
     return (
@@ -84,7 +88,7 @@ const ShippingPage = ({ history }) => {
                 }}
             >
                 <h3>
-                    REGISTRO DE CARGA / DESCARGA
+                    MÓDULO DE PICKING
                 </h3>
                 <BasicButton
                     onClick={simulateRead}
@@ -99,7 +103,7 @@ const ShippingPage = ({ history }) => {
                     onChange={setQRCode}
                 />
 
-                <ProductsList products={Array.from(products.values())} />
+                <ProductsList products={products} />
                 <BasicButton
                     text="Volver"
                     type="flat"
@@ -121,7 +125,6 @@ const ShippingPage = ({ history }) => {
 
 const sendProductLoadIn = async (data, account, type) => {
 
-
     navigator.geolocation.getCurrentPosition(result => location = result);
 
     const signedMessage = account.sign(JSON.stringify({
@@ -137,7 +140,7 @@ const sendProductLoadIn = async (data, account, type) => {
     console.log(signedMessage.message);
     console.log(signedMessage.signature);
 
-    const response = await fetch(`http://172.18.2.99:8080/api/v1.0/product/${data}`, {
+    const response = await fetch(`${API_URL}/api/v1.0/product/${data}`, {
         method: 'PUT',
         body: JSON.stringify({
             message: signedMessage.message,
@@ -147,17 +150,24 @@ const sendProductLoadIn = async (data, account, type) => {
 
     const json = await response.json();
     console.log(json);
-
-    return new Promise((resolve, reject) => {
-        resolve({
-            name: 'Ejemplo de producto',
-            expirationDate: new Date(),
-            description: 'Descripción',
-            loadDate: new Date(),
-            hash: '#12345' + loadCounter
-        })
-    })
+    return json;
 }
+
+/*
+data:{
+    barcode: "3123567678"
+    batch: "AE23GH"
+    euCode: "EU/1233446/27"
+    expirationDate: "2018-11-28T18:08:13.230Z"
+    ingredients: "Cosas, y más"
+    name: "Queso"
+    other: ""
+    producer: "Queseria"
+    weight: "400gr"
+}
+tx_hash: "0x0069134cfd9043dfddfa303f99d0cec0dfb9699aff9a92562b7aece73446df80"
+
+*/
 
 const extractHash = url => {
     return url;

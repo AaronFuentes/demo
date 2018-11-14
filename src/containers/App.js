@@ -46,7 +46,7 @@ class App extends React.Component {
     }
 
     startInTransit = () => {
-        startTracking();
+        startTracking(this.state.credentials);
         this.setState({
             inTransit: true
         });
@@ -117,21 +117,52 @@ export const getLoadedItems = () => {
 }
 
 let interval = null;
-const startTracking = () => {
+const startTracking = account => {
     const items = getLoadedItems();
     interval = setInterval(() => {
         for(let item of items){
-            console.log('item location update');
+            sendProductLocationUpdate(item.product_hash, account, 'location')
         }
         navigator.geolocation.getCurrentPosition(location => console.log(location))
     }, LOCATION_INTERVAL);
 
 }
 
-const stopTracking = () => {
-    clearInterval(interval);
+let location = navigator.geolocation.getCurrentPosition(result => location = result);
+const sendProductLocationUpdate = async (data, account, type) => {
+    console.log(data, account, type);
+
+    location = navigator.geolocation.getCurrentPosition(result => location = result);
+
+    const signedMessage = account.sign(JSON.stringify({
+        data: {
+            coords: {
+                latitude: location.coords.latitude,
+                longitude: location.coords.longitude
+            },
+        },
+        type: type
+    }));
+
+    console.log(signedMessage.message);
+    console.log(signedMessage.signature);
+
+    const response = await fetch(`${API_URL}/api/v1.0/product/${data}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+            message: signedMessage.message,
+            signature: signedMessage.signature
+        })
+    })
+
+    const json = await response.json();
+    console.log(json);
+    return json;
 }
 
 
+const stopTracking = () => {
+    clearInterval(interval);
+}
 
 export default App;

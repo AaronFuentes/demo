@@ -5,6 +5,11 @@ import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
 import { withRouter } from 'react-router-dom';
 
+/*
+Cod. trazabilidad
+
+*/
+
 const DeliveryPage = ({ history }) => {
 
     const goBack = () => {

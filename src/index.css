@@ -25,6 +25,11 @@ body {
   border-bottom: 2px solid grey;
 }
 
+.truncate {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
 
 .App {
   width: 100%;

@@ -1,5 +1,6 @@
 import React from 'react';
 import TextInput from '../UI/TextInput';
+import { format, addDays } from 'date-fns';
 
 const ProductForm = ({ product }) => {
 
@@ -13,7 +14,7 @@ const ProductForm = ({ product }) => {
             />
             <TextInput
                 floatingText="Fecha de caducidad"
-                value={!!product? product.expirationDate : ''}
+                value={!!product? format(addDays(product.expirationDate, 30), 'DD/MM/YYYY - HH:mm:ss') : ''}
                 disabled
                 id="text-input"
             />
