@@ -7,13 +7,14 @@ import EnterTrackingHashForm from './EnterTrackingHashForm';
 import LoadingSection from '../UI/LoadingSection';
 import BasicButton from '../UI/BasicButton';
 import { API_URL } from '../config';
-
+import ReactJson from 'react-json-view'
 /*
  Replace the geolocation generation for the data in the transaction
 */
 
 const TrackingPage = ({ match, history }) => {
     const [loading, updateLoading] = React.useState(true);
+    const [rawData, updateRawData] = React.useState(false);
     const [location, setLocation] = React.useState({coords: {}});
     const [data, setData] = React.useState(null);
     console.log(match);
@@ -38,49 +39,89 @@ const TrackingPage = ({ match, history }) => {
         history.goBack();
     }
 
+    const toggleRawData = () => {
+        updateRawData(!rawData);
+    }
+
     return (
         <div style={{
             height: '100%',
             width: '100%',
             backgroundColor: lightGrey,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center'
+            overflowY: 'auto'
         }}>
-            <Paper style={{height: '90%', width: width, padding: '2.3em', display: 'flex', alignItems: 'center', justifyContent: 'flex-start', flexDirection: 'column'}}>
-                {loading?
-                    <div style={{
-                        width: '100%',
-                        height: '100%',
+            <div
+                style={{
+                    width: '100%',
+                    display: 'flex',
+                    paddingTop: '1.3em',
+                    paddingBottom: '1.3em',
+                    justifyContent: 'center',
+                }}
+            >
+                <Paper
+                    style={{
+                        width: width,
+                        padding: '2.3em',
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        flexDirection: 'column',
-                        fontSize: '2em',
-                        fontWeight: '700'
-                    }}>
-                        Cargando...
-                        <LoadingSection/>
-                    </div>
-                :
-                    <div style={{maxWidth: '800px', minWidth: '450px'}}>
-                        <h3>TRAZA DEL PRODUCTO</h3>
-                        <Timeline>
-                            {data.trace.map(trace => (
-                                getTraceTimeline(trace)
-                            ))}
-                        </Timeline>
-                        <BasicButton
-                            text="Volver"
-                            type="flat"
-                            textStyle={{fontWeight: '700', color: 'black'}}
-                            buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
-                            onClick={goBack}
-                        />
-                    </div>
-                }
+                        justifyContent: 'flex-start',
+                        flexDirection: 'column'
+                    }}
+                >
+                    {loading?
+                        <div style={{
+                            width: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            flexDirection: 'column',
+                            fontSize: '2em',
+                            fontWeight: '700'
+                        }}>
+                            Cargando...
+                            <LoadingSection/>
+                        </div>
+                    :
+                        <div style={{maxWidth: '800px', minWidth: '450px'}}>
+                            <h3>TRAZA DEL PRODUCTO</h3>
+                            <BasicButton
+                                text={rawData? 'Ver timeline' : "Ver datos smart contract"}
+                                type="flat"
+                                textStyle={{fontWeight: '700', color: 'black'}}
+                                buttonStyle={{marginRight: '0.3em', marginBottom: '2em'}}
+                                onClick={toggleRawData}
+                            />
+                            {rawData?
+                                <div style={{textAlign: 'left !important', display: 'static'}}>
+                                    <ReactJson
+                                        src={data}
+                                        theme="monokai"
+                                        enableClipboard={false}
+                                        style={{
+                                            textAlign: 'left'
+                                        }}
+                                    />
+                                </div>
+                            :
+                                <Timeline>
+                                    {data.trace.map(trace => (
+                                        getTraceTimeline(trace)
+                                    ))}
+                                </Timeline>
+                            }
+                            <BasicButton
+                                text="Volver"
+                                type="flat"
+                                textStyle={{fontWeight: '700', color: 'black'}}
+                                buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
+                                onClick={goBack}
+                            />
+                        </div>
+                    }
 
-            </Paper>
+                </Paper>
+            </div>
         </div>
     )
 }
@@ -102,7 +143,7 @@ const getTraceTimeline = trace => {
                 <Timeline.Item color="green">
                     Alta de producto
                     <TransactionLink
-                        hash='trace'
+                        hash={trace.tx_hash}
                         text="Ver transacción"
                     />
                 </Timeline.Item>
@@ -112,7 +153,7 @@ const getTraceTimeline = trace => {
                 <Timeline.Item dot={<i className="far fa-list-alt"></i>}>
                     Carga del producto
                     <TransactionLink
-                        hash='trace'
+                        hash={trace.tx_hash}
                         text="Ver transacción"
                     />
                 </Timeline.Item>
@@ -124,7 +165,7 @@ const getTraceTimeline = trace => {
                         En tránsito
                     </a>
                     <TransactionLink
-                        hash='trace'
+                        hash={trace.tx_hash}
                         text="Ver transacción"
                     />
                 </Timeline.Item>
@@ -135,22 +176,12 @@ const getTraceTimeline = trace => {
                 <Timeline.Item dot={<i className="fas fa-check"></i>} color="green">
                     Recibido en destino
                     <TransactionLink
-                        hash='trace'
+                        hash={trace.tx_hash}
                         text="Ver transacción"
                     />
                 </Timeline.Item>
             )
     }
 }
-
-/*
-    <a href={`https://www.google.com/maps/place/${location.coords.latitude},${location.coords.longitude}`} target="_blank" rel="noreferrer noopener">
-        <Timeline.Item dot={<i className="fas fa-truck-moving"></i>}>En tránsito</Timeline.Item>
-    </<Timeline.Item dot={<i className="far fa-list-alt"></i>}>Carga del producto</Timeline.Item>a>
-    <Timeline.Item dot={<i className="fas fa-truck-moving"></i>}>En tránsito</Timeline.Item>
-    <Timeline.Item dot={<i className="fas fa-truck-moving"></i>}>En tránsito</Timeline.Item>
-    <Timeline.Item dot={<i className="fas fa-truck-moving"></i>}>En tránsito</Timeline.Item>
-    <Timeline.Item dot={<i className="fas fa-check"></i>} color="green">Recibido en destino</Timeline.Item>
-*/
 
 export default withRouter(TrackingPage);

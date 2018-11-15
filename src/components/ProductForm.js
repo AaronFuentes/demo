@@ -19,8 +19,15 @@ const ProductForm = ({ product }) => {
                 id="text-input"
             />
             <TextInput
-                floatingText="Descripción"
-                value={!!product? product.description : ''}
+                floatingText="Lote"
+                value={!!product? product.batch : ''}
+                disabled
+                id="text-input"
+            />
+
+            <TextInput
+                floatingText="Peso neto"
+                value={!!product? product.weight : ''}
                 disabled
                 id="text-input"
             />
@@ -29,3 +36,5 @@ const ProductForm = ({ product }) => {
 }
 
 export default ProductForm;
+
+//2980236002700 - 2980236002700

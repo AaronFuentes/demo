@@ -21,6 +21,14 @@ const EnterTrackingHashForm = ({ history }) => {
         history.goBack();
     }
 
+    const handleKeyUp = (event) => {
+        const key = event.nativeEvent;
+
+        if(key.keyCode === 13){
+            enterCode(event.target.value);
+        }
+    }
+
     return (
         <div
             style={{
@@ -53,6 +61,7 @@ const EnterTrackingHashForm = ({ history }) => {
                     floatingText="Código del producto"
                     id="text-input"
                     autoFocus={true}
+                    onKeyUp={handleKeyUp}
                 />
                 <BasicButton
                     text="Volver"

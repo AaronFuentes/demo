@@ -6,24 +6,31 @@ import TextInput from '../UI/TextInput';
 import ProductForm from './ProductForm';
 import BasicButton from '../UI/BasicButton';
 import { withRouter } from 'react-router-dom';
-import { addDays } from 'date-fns';
+import { addDays, getTime } from 'date-fns';
 import { MainAppContext } from '../containers/App';
 import ProductTag from './ProductTag';
+import web3 from 'web3';
+import Barcode from 'react-barcode';
+
+const barcode = '2980236002796'
 
 const TRANSPORTER_ADDRESS = '0c83b1bdf97ae4fa09185a44127696464be6c77b';
+let timeout = null;
 
 const RegisterPage = ({ history }) => {
     const [code, updateBarcode] = React.useState('');
     const [product, setProduct] = React.useState(null);
+    const [barcodeError, setBarcodeError] = React.useState('');
     const [generatedCode, setCode] = React.useState(null);
     const mainAppContext = React.useContext(MainAppContext);
 
-    let timeout = null;
+
 
     const setBarcode = event => {
+/*         const value = event.target.value
         clearTimeout(timeout);
-        updateBarcode(event.target.value);
-        timeout = setTimeout(searchCodeData, 450);
+        updateBarcode(value);
+        timeout = setTimeout(() => searchCodeData(value), 450); */
     }
 
     const goBack = () => {
@@ -39,9 +46,14 @@ const RegisterPage = ({ history }) => {
     //AÑADIR UUID GENERATION
     const registerUnit = async () => {
         const response = await sendRegisterTransaction({
+            type: 'registration',
+            transporter: TRANSPORTER_ADDRESS,
+            origin: mainAppContext.credentials.address,
+            productType: "9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658",
             data: {
-                expirationDate: addDays(new Date(), 15),
-                barcode: '3123567678',
+                expirationDate: 1544896572,
+                barcode: code,
+                origin: mainAppContext.credentials.address,
                 batch: 'AE23GH',
                 euCode: 'EU/1233446/27',
                 ingredients: 'Cosas, y más',
@@ -49,19 +61,37 @@ const RegisterPage = ({ history }) => {
                 other: '',
                 producer: 'Queseria',
                 weight: '400gr'
-            },
-            type: 'registration',
-            transporter: TRANSPORTER_ADDRESS
+            }
         }, mainAppContext.credentials);
 
         setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.product_hash}`));
     }
 
-    const searchCodeData = () => {
-        if(code === '1234'){
+
+    const handleEnter = event => {
+        const key = event.nativeEvent;
+
+        if(key.keyCode === 13){
+            searchCodeData(event.target.value);
+        }
+    }
+
+    const checkValidBarcode = bc => {
+        if(bc < 2980236002700 || bc > 2980236002799){
+            console.log('invalid');
+            setBarcodeError('El código no es válido');
+            return false;
+        }
+        setBarcodeError('');
+        console.log('valid');
+        return true;
+    }
+
+    const searchCodeData = bc => {
+        if(checkValidBarcode(bc)){
             const response = {
-                expirationDate: addDays(new Date(), 30),
-                barcode: '3123567678',
+                expirationDate: getTime(addDays(new Date(), 30)),
+                barcode: bc,
                 batch: 'AE23GH',
                 euCode: 'EU/1233446/27',
                 ingredients: 'Cosas, y más',
@@ -71,6 +101,7 @@ const RegisterPage = ({ history }) => {
                 weight: '400gr'
             }
 
+            updateBarcode(bc);
             setProduct(response);
         } else {
             setProduct(null);
@@ -85,13 +116,14 @@ const RegisterPage = ({ history }) => {
                 display: 'flex',
                 backgroundColor: lightGrey,
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                overflowX: 'hidden'
             }}
         >
             <Paper
                 style={{
                     width: '850px',
-                    height: '85%',
+                    minHeight: '85%',
                     backgroundColor: 'white',
                     padding: '2.2em',
                     paddingTop: '1em',
@@ -100,13 +132,14 @@ const RegisterPage = ({ history }) => {
                 <h3>
                     ORDEN DE PRODUCCIÓN
                 </h3>
+                {/* <Barcode value={barcode} /> */}
 
                 <TextInput
                     floatingText="Código del producto"
-                    value={code}
                     id="text-input"
+                    errorText={barcodeError}
                     autoFocus={true}
-                    onChange={setBarcode}
+                    onKeyUp={handleEnter}
                 />
 
                 <ProductForm product={product} />
@@ -127,7 +160,7 @@ const RegisterPage = ({ history }) => {
                         onClick={cleanForm}
                     />
                     <BasicButton
-                        text="Registrar"
+                        text="Producir"
                         color={primary}
                         type="raised"
                         textStyle={{fontWeight: '700', color: 'white'}}
@@ -136,10 +169,12 @@ const RegisterPage = ({ history }) => {
                     />
                 </div>
                 {!!generatedCode &&
-                    <ProductTag
-                        product={product}
-                        qr={generatedCode}
-                    />
+                    <>
+                        <ProductTag
+                            product={product}
+                            qr={generatedCode}
+                        />
+                    </>
                 }
             </Paper>
         </div>
@@ -147,23 +182,17 @@ const RegisterPage = ({ history }) => {
 }
 
 const sendRegisterTransaction = async (data, account) => {
-
-    const signedMessage = account.sign(JSON.stringify(data));
-/* 
-    console.log(signedMessage);
-
-    console.log(signedMessage.message);
-    console.log(signedMessage.signature); */
+    const dataString = JSON.stringify(data);
+    const hashedMessage = web3.utils.sha3(dataString);
+    const signedHash = account.sign(hashedMessage);
 
     const response = await fetch(`${API_URL}/api/v1.0/products`, {
         method: 'POST',
         body: JSON.stringify({
-            message: signedMessage.message,
-            signature: signedMessage.signature
+            message: dataString,
+            signature: signedHash.signature
         })
-    })
-
-    //console.log(response);
+    });
 
     const json = await response.json();
     console.log(json);
@@ -171,70 +200,3 @@ const sendRegisterTransaction = async (data, account) => {
 }
 
 export default withRouter(RegisterPage);
-
-    /*SEND
-        {
-            barcode: 
-            batch: 
-            euCode: 
-            expirationDate: 
-            ingredients: String
-            name:
-            other: 
-            uuid: 
-            producer: 
-            type
-            weight: 
-        },
-        type: 'registration'
-
-
-        /product POST
-
-        /product/id PUT
-        {
-            signature:
-            data: string({
-                coords: {
-                    latitude: asdasd,
-                    longitude: asdasdas 
-                }
-
-            }),
-            type: 'location'
-        }
-
-        /product/id PUT
-        {
-            signature:
-            data: string({
-                coords: {
-                    latitude: asdasd,
-                    longitude: asdasdas 
-                }
-
-            }),
-            type: 'delivered'
-        }
-
-        /product/id PUT
-        {
-            signature:
-            data: string({
-                coords: {
-                    latitude: asdasd,
-                    longitude: asdasdas 
-                }
-
-            }),
-            type: 'deliveryConfirmation'
-        }
-    */
-
-    /*
-        /product/hash GET
-        {
-            productInfo: '',
-            trace: []
-        }
-    */
