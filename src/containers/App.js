@@ -7,6 +7,7 @@ import LoginPage from '../components/LoginPage';
 import { LOCATION_INTERVAL, API_URL } from '../config';
 import { HEADER_HEIGHT } from '../constants';
 import ThemeProvider from '../UI/ThemeProvider';
+import web3 from 'web3';
 import TrackingPage from '../components/TrackingPage';
 import RegisterPage from '../components/RegisterPage';
 import ShippingPage from '../components/ShippingPage';
@@ -15,7 +16,8 @@ import "antd/dist/antd.css";
 export const MainAppContext = React.createContext();
 const Accounts = require('web3-eth-accounts');
 const accounts = new Accounts();
-
+let location;
+navigator.geolocation.getCurrentPosition(result => location = result);
 
 
 class App extends React.Component {
@@ -79,9 +81,10 @@ class App extends React.Component {
                     stopInTransit: this.stopInTransit
                 }}>
                     <div className="App">
-                        <Header />
-                        <div style={{height: `calc(100% - ${HEADER_HEIGHT})`, width: '100%'}}>
-                            <BrowserRouter>
+                        <BrowserRouter>
+                            <>
+                                <Header />
+                                <div style={{height: `calc(100% - ${HEADER_HEIGHT})`, width: '100%'}}>
                                     {this.state.credentials?
                                         <Switch>
                                             <Route exact path="/" component={MainPage} />
@@ -98,8 +101,9 @@ class App extends React.Component {
                                             <Route path="*" component={this.goToRoot} />
                                         </Switch>
                                     }
-                            </BrowserRouter>
-                        </div>
+                                </div>
+                            </>
+                        </BrowserRouter>
                     </div>
                 </MainAppContext.Provider>
             </ThemeProvider>
@@ -121,42 +125,36 @@ const startTracking = account => {
     const items = getLoadedItems();
     interval = setInterval(() => {
         for(let item of items){
-            sendProductLocationUpdate(item.product_hash, account, 'location')
+            sendProductLocationUpdate(item[0], account, 'location')
         }
-        navigator.geolocation.getCurrentPosition(location => console.log(location))
     }, LOCATION_INTERVAL);
 
 }
 
-let location = navigator.geolocation.getCurrentPosition(result => location = result);
-const sendProductLocationUpdate = async (data, account, type) => {
-    console.log(data, account, type);
+const sendProductLocationUpdate = async (productHash, account, type) => {
+    navigator.geolocation.getCurrentPosition(result => location = result);
 
-    location = navigator.geolocation.getCurrentPosition(result => location = result);
-
-    const signedMessage = account.sign(JSON.stringify({
+    const dataString = JSON.stringify({
+        type: type,
         data: {
             coords: {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude
             },
         },
-        type: type
-    }));
+    });
+    const hashedMessage = web3.utils.sha3(dataString);
+    const signedHash = account.sign(hashedMessage);
 
-    console.log(signedMessage.message);
-    console.log(signedMessage.signature);
-
-    const response = await fetch(`${API_URL}/api/v1.0/product/${data}`, {
+    const response = await fetch(`${API_URL}/api/v1.0/product/${productHash}`, {
         method: 'PUT',
         body: JSON.stringify({
-            message: signedMessage.message,
-            signature: signedMessage.signature
+            message: dataString,
+            signature: signedHash.signature
         })
     })
 
     const json = await response.json();
-    console.log(json);
     return json;
 }
 

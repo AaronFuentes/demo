@@ -3,10 +3,11 @@ import Grid from '../UI/Grid';
 import GridItem from '../UI/GridItem';
 import QRCode from 'qrcode.react';
 import { format } from 'date-fns';
-import { Paper } from 'material-ui';
+import { Card } from 'material-ui';
 import html2canvas from 'html2canvas';
 import ReactToPrint from "react-to-print";
 import Barcode from 'react-barcode';
+import { secondary } from '../styles/colors';
 
 
 const setCanvasToPrint = () => {
@@ -28,14 +29,15 @@ class ProductTag extends React.Component {
 
     render() {
         const { product, qr } = this.props;
+        console.log(qr);
         return (
             <div style={{width: '100%', overflow: 'hidden'}}>
                 <ReactToPrint
-                    trigger={() => <a onClick={this.print}>Imprimir</a>}
+                    trigger={() => <span onClick={this.print} style={{color: secondary, cursor: 'pointer'}}>Imprimir</span>}
                     content={() => this.tagRef}
                 />
-                <img id="canvas" ref={ref => this.tagRef = ref} style={{position: 'absolute', zIndex: '-1', maxWidth: window.innerWidth}} />
-                <Paper id="divcontents" style={{ padding: '1em', border: '1px solid gainsboro'}}>
+                <img alt="print-screen" id="canvas" ref={ref => this.tagRef = ref} style={{position: 'absolute', zIndex: '-1', maxWidth: window.innerWidth}} />
+                <Card id="divcontents" style={{ padding: '1em', margin: '0.5em'}}>
                     <Grid style={{borderBottom: '2px solid gainsboro'}}>
                         <GridItem xs={12} md={4} lg={4} style={{display: 'flex', flexDirection: 'column', borderRight: '2px solid gainsboro', minHeight: '4em'}}>
                             <div
@@ -130,7 +132,7 @@ class ProductTag extends React.Component {
                             </div>
                         </GridItem>
                     </Grid>
-                </Paper>
+                </Card>
             </div>
         )
     }

@@ -1,5 +1,5 @@
 import React from 'react';
-import { lightGrey, primary, secondary } from '../styles/colors';
+import { lightGrey } from '../styles/colors';
 import { Paper } from 'material-ui';
 import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';

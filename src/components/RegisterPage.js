@@ -10,12 +10,7 @@ import { addDays, getTime } from 'date-fns';
 import { MainAppContext } from '../containers/App';
 import ProductTag from './ProductTag';
 import web3 from 'web3';
-import Barcode from 'react-barcode';
-
-const barcode = '2980236002796'
-
 const TRANSPORTER_ADDRESS = '0c83b1bdf97ae4fa09185a44127696464be6c77b';
-let timeout = null;
 
 const RegisterPage = ({ history }) => {
     const [code, updateBarcode] = React.useState('');
@@ -23,15 +18,6 @@ const RegisterPage = ({ history }) => {
     const [barcodeError, setBarcodeError] = React.useState('');
     const [generatedCode, setCode] = React.useState(null);
     const mainAppContext = React.useContext(MainAppContext);
-
-
-
-    const setBarcode = event => {
-/*         const value = event.target.value
-        clearTimeout(timeout);
-        updateBarcode(value);
-        timeout = setTimeout(() => searchCodeData(value), 450); */
-    }
 
     const goBack = () => {
         history.goBack();
@@ -43,7 +29,6 @@ const RegisterPage = ({ history }) => {
         setCode(null)
     }
 
-    //AÑADIR UUID GENERATION
     const registerUnit = async () => {
         const response = await sendRegisterTransaction({
             type: 'registration',
@@ -78,12 +63,10 @@ const RegisterPage = ({ history }) => {
 
     const checkValidBarcode = bc => {
         if(bc < 2980236002700 || bc > 2980236002799){
-            console.log('invalid');
-            setBarcodeError('El código no es válido');
+            setBarcodeError('El código introducido no es válido');
             return false;
         }
         setBarcodeError('');
-        console.log('valid');
         return true;
     }
 
@@ -195,7 +178,6 @@ const sendRegisterTransaction = async (data, account) => {
     });
 
     const json = await response.json();
-    console.log(json);
     return json;
 }
 

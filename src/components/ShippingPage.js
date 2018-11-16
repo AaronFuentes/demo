@@ -1,16 +1,15 @@
 import React from 'react';
-import { lightGrey, primary, secondary } from '../styles/colors';
+import { lightGrey, primary } from '../styles/colors';
 import { Paper } from 'material-ui';
 import { withRouter } from 'react-router-dom';
 import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
+import web3 from 'web3';
 import ProductsList from './ProductsList';
 import { MainAppContext, getLoadedItems } from '../containers/App';
 import { API_URL } from '../config';
+import { extractHashFromURL } from '../utils/hashUtils';
 
-let loadCounter = 0;
-let unloadCounter = 5;
-let timeout = null;
 let location;
 navigator.geolocation.getCurrentPosition(result => location = result);
 
@@ -19,14 +18,10 @@ const ShippingPage = ({ history }) => {
     const [products, updateProducts] = React.useState(getLoadedItems());
     const [qrCode, updateQRcode] = React.useState('');
     const mainApp = React.useContext(MainAppContext);
-    console.log(mainApp);
-
 
     const setQRCode = event => {
-        clearTimeout(timeout);
         const value = event.target.value;
-        updateQRcode(event.target.value);
-        timeout = setTimeout(() => searchQRData(value), 450);
+        updateQRcode(extractHashFromURL(value));
     }
 
     const goBack = () => {
@@ -42,29 +37,30 @@ const ShippingPage = ({ history }) => {
     }
 
     const searchQRData = async qr => {
-        const hash = extractHash(qr);
+        const hash = extractHashFromURL(qr);
         if(products.has(hash)){
             products.delete(hash);
             updateProducts(new Map(products.entries()));
-            const response = await sendProductLoadIn(hash, mainApp.credentials, 'delivered');
-            console.log(response);
+            await sendProductLoadIn(hash, mainApp.credentials, 'delivered');
+            updateQRcode('');
             localStorage.setItem('loadedItems', JSON.stringify(Array.from(products.entries())));
-            unloadCounter--;
         } else {
-            //EN LA RESPUESTA NECESITO LOS DATOS DEL PRODUCTO
             const response = await sendProductLoadIn(hash, mainApp.credentials, 'loadUp');
             if(response){
-                console.log(response);
                 products.set(hash, response);
                 localStorage.setItem('loadedItems', JSON.stringify(Array.from(products.entries())));
                 updateProducts(new Map(products.entries()));
-                loadCounter++;
+                updateQRcode('');
             }
         }
     }
 
-    const simulateRead = () => {
-        searchQRData('123423423');
+    const handleEnter = event => {
+        const key = event.nativeEvent;
+
+        if(key.keyCode === 13){
+            searchQRData(event.target.value);
+        }
     }
 
     return (
@@ -90,10 +86,6 @@ const ShippingPage = ({ history }) => {
                 <h3>
                     MÓDULO DE PICKING
                 </h3>
-                <BasicButton
-                    onClick={simulateRead}
-                    text="Simular lectura"
-                />
 
                 <TextInput
                     floatingText="Código del producto"
@@ -101,6 +93,7 @@ const ShippingPage = ({ history }) => {
                     id="text-input"
                     autoFocus={true}
                     onChange={setQRCode}
+                    onKeyUp={handleEnter}
                 />
 
                 <ProductsList products={products} />
@@ -126,54 +119,28 @@ const ShippingPage = ({ history }) => {
 const sendProductLoadIn = async (data, account, type) => {
 
     navigator.geolocation.getCurrentPosition(result => location = result);
-
-    const signedMessage = account.sign(JSON.stringify({
+    const dataString = JSON.stringify({
+        type: type,
         data: {
             coords: {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude
             },
         },
-        type: type
-    }));
-
-    console.log(signedMessage.message);
-    console.log(signedMessage.signature);
+    });
+    const hashedMessage = web3.utils.sha3(dataString);
+    const signedHash = account.sign(hashedMessage);
 
     const response = await fetch(`${API_URL}/api/v1.0/product/${data}`, {
         method: 'PUT',
         body: JSON.stringify({
-            message: signedMessage.message,
-            signature: signedMessage.signature
+            message: dataString,
+            signature: signedHash.signature
         })
     })
 
     const json = await response.json();
-    console.log(json);
     return json;
-}
-
-/*
-data:{
-    barcode: "3123567678"
-    batch: "AE23GH"
-    euCode: "EU/1233446/27"
-    expirationDate: "2018-11-28T18:08:13.230Z"
-    ingredients: "Cosas, y más"
-    name: "Queso"
-    other: ""
-    producer: "Queseria"
-    weight: "400gr"
-}
-tx_hash: "0x0069134cfd9043dfddfa303f99d0cec0dfb9699aff9a92562b7aece73446df80"
-
-*/
-
-const extractHash = url => {
-    return url;
-    const index = url.indexOf('0x');
-    let hash = url.substr(index);
-    return hash;
 }
 
 export default withRouter(ShippingPage);

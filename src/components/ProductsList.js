@@ -1,11 +1,8 @@
 import React from 'react';
 import Grid from '../UI/Grid';
 import GridItem from '../UI/GridItem';
-import { format } from 'date-fns';
-
 
 const ProductsList = ({ products }) => {
-    console.log(products);
     const productsArray = Array.from(products.entries());
 
     return (
@@ -20,7 +17,7 @@ const ProductsList = ({ products }) => {
                 Transacción de carga
             </GridItem>
             {productsArray.map(product =>
-                <React.Fragment key={`product_hash_${product.hash}`}>
+                <React.Fragment key={`product_hash_${product[0]}`}>
                     <GridItem xs={4} md={4} lg={4} className="overflowText">
                         {product[0]}
                     </GridItem>

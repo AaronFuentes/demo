@@ -1,5 +1,5 @@
 import React from 'react';
-import { Timeline, Icon } from 'antd';
+import { Timeline } from 'antd';
 import { Paper } from 'material-ui';
 import { lightGrey } from '../styles/colors';
 import { withRouter } from 'react-router-dom';
@@ -15,18 +15,16 @@ import ReactJson from 'react-json-view'
 const TrackingPage = ({ match, history }) => {
     const [loading, updateLoading] = React.useState(true);
     const [rawData, updateRawData] = React.useState(false);
-    const [location, setLocation] = React.useState({coords: {}});
     const [data, setData] = React.useState(null);
-    console.log(match);
     React.useEffect(async () => {
-        if(loading){
+        if(match.params.hash){
             const response = await fetch(`${API_URL}/api/v1.0/product/${match.params.hash}`);
             const json = await response.json();
             console.log(json);
             setData(json);
             updateLoading(false);
         }
-    })
+    }, [match.params.hash]);
 
     const width = window.innerWidth > 800? '800px' : '100%';
     if(!match.params.hash){
@@ -140,7 +138,7 @@ const getTraceTimeline = trace => {
     switch(trace.type){
         case 'registration':
             return (
-                <Timeline.Item color="green">
+                <Timeline.Item color="green" key={trace.tx_hash}>
                     Alta de producto
                     <TransactionLink
                         hash={trace.tx_hash}
@@ -150,7 +148,7 @@ const getTraceTimeline = trace => {
             )
         case 'loadUp':
             return (
-                <Timeline.Item dot={<i className="far fa-list-alt"></i>}>
+                <Timeline.Item dot={<i className="far fa-list-alt"></i>} key={trace.tx_hash}>
                     Carga del producto
                     <TransactionLink
                         hash={trace.tx_hash}
@@ -160,7 +158,7 @@ const getTraceTimeline = trace => {
             )
         case 'location':
             return (
-                <Timeline.Item dot={<i className="fas fa-truck-moving"></i>}>
+                <Timeline.Item dot={<i className="fas fa-truck-moving"></i>} key={trace.tx_hash}>
                     <a href={`https://www.google.com/maps/place/${trace.coords}`} target="_blank" rel="noreferrer noopener">
                         En tránsito
                     </a>
@@ -171,9 +169,9 @@ const getTraceTimeline = trace => {
                 </Timeline.Item>
             )
 
-        case 'delivered':
+        default:
             return (
-                <Timeline.Item dot={<i className="fas fa-check"></i>} color="green">
+                <Timeline.Item dot={<i className="fas fa-check" key={trace.tx_hash}></i>} color="green" key={trace.tx_hash}>
                     Recibido en destino
                     <TransactionLink
                         hash={trace.tx_hash}

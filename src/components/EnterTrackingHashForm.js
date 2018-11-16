@@ -4,6 +4,7 @@ import BasicButton from '../UI/BasicButton';
 import { withRouter } from 'react-router-dom';
 import { Paper } from 'material-ui';
 import { lightGrey } from '../styles/colors';
+import { extractHashFromURL } from '../utils/hashUtils';
 
 const EnterTrackingHashForm = ({ history }) => {
 
@@ -13,8 +14,8 @@ const EnterTrackingHashForm = ({ history }) => {
         history.push(`/tracking/${hash}`);
     }
 
-    const simulateRead = () => {
-        enterCode('0x12323123');
+    const setHashToSearch = event => {
+        updateHash(extractHashFromURL(event.target.value));
     }
 
     const goBack = () => {
@@ -52,15 +53,12 @@ const EnterTrackingHashForm = ({ history }) => {
                 <h3>
                     INTRODUCIR HASH
                 </h3>
-                <BasicButton
-                    text="Simular lectura"
-                    onClick={simulateRead}
-                />
-
                 <TextInput
                     floatingText="Código del producto"
                     id="text-input"
+                    value={hash}
                     autoFocus={true}
+                    onChange={setHashToSearch}
                     onKeyUp={handleKeyUp}
                 />
                 <BasicButton

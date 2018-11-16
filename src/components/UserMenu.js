@@ -3,14 +3,21 @@ import DropDownMenu from '../UI/DropDownMenu';
 import { secondary, primary, lightGrey } from '../styles/colors';
 import { Paper, MenuItem } from 'material-ui';
 import { MainAppContext } from '../containers/App';
+import { withRouter } from 'react-router-dom';
 import Account from './Account';
 
-const UserMenu = () => {
+
+const UserMenu = ({ history }) => {
     const userContext = React.useContext(MainAppContext);
     const [accountModal, setAccountModal] = React.useState(false);
 
     const toggleAccountModal = () => {
         setAccountModal(!accountModal);
+    }
+
+    const callLogout = () => {
+        userContext.logoutUser();
+        history.push('/')
     }
 
 	return (
@@ -75,7 +82,7 @@ const UserMenu = () => {
                                 </div>
                         </MenuItem>
                         <MenuItem
-                            onClick={userContext.logoutUser}
+                            onClick={callLogout}
                         >
                             <div
                                     style={{
@@ -99,4 +106,4 @@ const UserMenu = () => {
 	);
 }
 
-export default UserMenu;
+export default withRouter(UserMenu);
