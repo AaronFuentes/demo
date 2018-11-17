@@ -137,6 +137,7 @@ const sendProductLocationUpdate = async (productHash, account, type) => {
     const dataString = JSON.stringify({
         type: type,
         data: {
+            productId: productHash,
             coords: {
                 latitude: location.coords.latitude,
                 longitude: location.coords.longitude

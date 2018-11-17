@@ -122,9 +122,10 @@ const sendProductLoadIn = async (data, account, type) => {
     const dataString = JSON.stringify({
         type: type,
         data: {
+            productId: data,
             coords: {
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude
+                latitude: location? location.coords.latitude : Math.random(),
+                longitude: location? location.coords.longitude : Math.random()
             },
         },
     });
