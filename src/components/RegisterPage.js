@@ -36,9 +36,8 @@ const RegisterPage = ({ history }) => {
             origin: mainAppContext.credentials.address,
             productType: "9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658",
             data: {
-                expirationDate: 1544896572,
+                expirationDate: "1544896572",
                 barcode: code,
-                origin: mainAppContext.credentials.address,
                 batch: 'AE23GH',
                 euCode: 'EU/1233446/27',
                 ingredients: 'Cosas, y más',
