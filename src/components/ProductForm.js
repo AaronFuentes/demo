@@ -14,7 +14,7 @@ const ProductForm = ({ product }) => {
             />
             <TextInput
                 floatingText="Fecha de caducidad"
-                value={!!product? format(addDays(product.expirationDate, 30), 'DD/MM/YYYY - HH:mm:ss') : ''}
+                value={!!product? format(addDays(product.expirationDate * 1000, 30), 'DD/MM/YYYY - HH:mm:ss') : ''}
                 disabled
                 id="text-input"
             />

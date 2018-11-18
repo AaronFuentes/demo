@@ -95,6 +95,7 @@ const TrackingPage = ({ match, history }) => {
                                     <ReactJson
                                         src={data}
                                         theme="monokai"
+                                        collapseStringsAfterLength={width}
                                         enableClipboard={false}
                                         style={{
                                             textAlign: 'left'

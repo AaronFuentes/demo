@@ -6,15 +6,17 @@ import TextInput from '../UI/TextInput';
 import ProductForm from './ProductForm';
 import BasicButton from '../UI/BasicButton';
 import { withRouter } from 'react-router-dom';
-import { addDays, getTime } from 'date-fns';
 import { MainAppContext } from '../containers/App';
 import ProductTag from './ProductTag';
 import web3 from 'web3';
+import LoadingSection from '../UI/LoadingSection';
 const TRANSPORTER_ADDRESS = '0x15947aC4B9f0f66fF17C2AA6510e3671f385Dd4e';
 
 const RegisterPage = ({ history }) => {
     const [code, updateBarcode] = React.useState('');
+    const [loading, setLoading] = React.useState(false);
     const [product, setProduct] = React.useState(null);
+    const qrValue = React.useRef(null);
     const [barcodeError, setBarcodeError] = React.useState('');
     const [generatedCode, setCode] = React.useState(null);
     const mainAppContext = React.useContext(MainAppContext);
@@ -30,6 +32,7 @@ const RegisterPage = ({ history }) => {
     }
 
     const registerUnit = async () => {
+        setLoading(true);
         const response = await sendRegisterTransaction({
             type: 'registration',
             transporter: TRANSPORTER_ADDRESS,
@@ -40,17 +43,19 @@ const RegisterPage = ({ history }) => {
                 barcode: code,
                 batch: 'AE23GH',
                 euCode: 'EU/1233446/27',
-                ingredients: 'Cosas, y más',
-                name: 'Queso',
+                ingredients: 'Leche pasteurizada de vaca, sal, cuajo  y fermentos lácticos.',
+                name: 'Queso de mezcla madurado',
                 other: '',
-                producer: 'Queseria',
+                producer: 'Quesos CBX',
                 weight: '400gr'
             }
         }, mainAppContext.credentials);
-
+        setLoading(false);
+        qrValue.current.value = response.product_hash;
+        qrValue.current.select();
+        document.execCommand('copy');
         setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.product_hash}`));
     }
-
 
     const handleEnter = event => {
         const key = event.nativeEvent;
@@ -72,14 +77,14 @@ const RegisterPage = ({ history }) => {
     const searchCodeData = bc => {
         if(checkValidBarcode(bc)){
             const response = {
-                expirationDate: getTime(addDays(new Date(), 30)),
+                expirationDate: "1544896572",
                 barcode: bc,
                 batch: 'AE23GH',
                 euCode: 'EU/1233446/27',
-                ingredients: 'Cosas, y más',
-                name: 'Queso',
+                ingredients: 'Leche pasteurizada de vaca, sal, cuajo  y fermentos lácticos.',
+                name: 'Queso de mezcla madurado',
                 other: '',
-                producer: 'Queseria',
+                producer: 'Quesos CBX',
                 weight: '400gr'
             }
 
@@ -114,8 +119,6 @@ const RegisterPage = ({ history }) => {
                 <h3>
                     ORDEN DE PRODUCCIÓN
                 </h3>
-                {/* <Barcode value={barcode} /> */}
-
                 <TextInput
                     floatingText="Código del producto"
                     id="text-input"
@@ -125,6 +128,12 @@ const RegisterPage = ({ history }) => {
                 />
 
                 <ProductForm product={product} />
+                <input
+                    type="input"
+                    style={{visibility: 'hidden'}}
+                    id="qrValue"
+                    ref={qrValue}
+                />
 
                 <div style={{display: 'flex', marginBottom: '1em'}}>
                     <BasicButton
@@ -143,6 +152,7 @@ const RegisterPage = ({ history }) => {
                     />
                     <BasicButton
                         text="Producir"
+                        loading={loading}
                         color={primary}
                         type="raised"
                         textStyle={{fontWeight: '700', color: 'white'}}
@@ -150,6 +160,12 @@ const RegisterPage = ({ history }) => {
                         onClick={registerUnit}
                     />
                 </div>
+                {loading &&
+                    <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+                        <LoadingSection />
+                    </div>
+
+                }
                 {!!generatedCode &&
                     <>
                         <ProductTag

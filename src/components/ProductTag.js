@@ -8,6 +8,7 @@ import html2canvas from 'html2canvas';
 import ReactToPrint from "react-to-print";
 import Barcode from 'react-barcode';
 import { secondary } from '../styles/colors';
+import { extractHashFromURL } from '../utils/hashUtils';
 
 
 const setCanvasToPrint = () => {
@@ -32,8 +33,9 @@ class ProductTag extends React.Component {
         console.log(qr);
         return (
             <div style={{width: '100%', overflow: 'hidden'}}>
+                <span style={{fontWeight: '700'}}>Hash de la transacción: </span>{extractHashFromURL(qr).slice(0, extractHashFromURL(qr).length - 1)}<br />
                 <ReactToPrint
-                    trigger={() => <span onClick={this.print} style={{color: secondary, cursor: 'pointer'}}>Imprimir</span>}
+                    trigger={() => <span onClick={this.print} style={{color: secondary, cursor: 'pointer'}}>Imprimir etiqueta</span>}
                     content={() => this.tagRef}
                 />
                 <img alt="print-screen" id="canvas" ref={ref => this.tagRef = ref} style={{position: 'absolute', zIndex: '-1', maxWidth: window.innerWidth}} />
@@ -88,7 +90,7 @@ class ProductTag extends React.Component {
                             >
                                 FECHA DE CADUCIDAD
                             </div>
-                            {format(product.expirationDate, 'DD/MM/YYYY')}
+                            {format(product.expirationDate * 1000, 'DD/MM/YYYY')}
                         </GridItem>
                     </Grid>
                     <Grid>
@@ -127,7 +129,7 @@ class ProductTag extends React.Component {
                             >
                                 COD. TRAZABILIDAD
                             </div>
-                            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: '1em'}}>
+                            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', paddingTop: '1em', flexDirection: 'column'}}>
                                 <QRCode value={qr} />
                             </div>
                         </GridItem>

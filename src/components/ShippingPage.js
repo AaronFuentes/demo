@@ -9,12 +9,13 @@ import ProductsList from './ProductsList';
 import { MainAppContext, getLoadedItems } from '../containers/App';
 import { API_URL } from '../config';
 import { extractHashFromURL } from '../utils/hashUtils';
+import LoadingSection from '../UI/LoadingSection';
 
 let location;
 navigator.geolocation.getCurrentPosition(result => location = result);
 
 const ShippingPage = ({ history }) => {
-
+    const [loading, setLoading] = React.useState(false);
     const [products, updateProducts] = React.useState(getLoadedItems());
     const [qrCode, updateQRcode] = React.useState('');
     const mainApp = React.useContext(MainAppContext);
@@ -37,20 +38,27 @@ const ShippingPage = ({ history }) => {
     }
 
     const searchQRData = async qr => {
+        if(loading){
+            return;
+        }
         const hash = extractHashFromURL(qr);
         if(products.has(hash)){
+            setLoading(true);
+            await sendProductStatusUpdate(hash, mainApp.credentials, 'delivered');
             products.delete(hash);
             updateProducts(new Map(products.entries()));
-            await sendProductLoadIn(hash, mainApp.credentials, 'delivered');
             updateQRcode('');
+            setLoading(false);
             localStorage.setItem('loadedItems', JSON.stringify(Array.from(products.entries())));
         } else {
-            const response = await sendProductLoadIn(hash, mainApp.credentials, 'loadUp');
+            const response = await sendProductStatusUpdate(hash, mainApp.credentials, 'loadUp');
+            setLoading(true);
             if(response){
                 products.set(hash, response);
                 localStorage.setItem('loadedItems', JSON.stringify(Array.from(products.entries())));
                 updateProducts(new Map(products.entries()));
                 updateQRcode('');
+                setLoading(false);
             }
         }
     }
@@ -97,6 +105,11 @@ const ShippingPage = ({ history }) => {
                 />
 
                 <ProductsList products={products} />
+                {loading &&
+                    <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+                        <LoadingSection />
+                    </div>
+                }
                 <BasicButton
                     text="Volver"
                     type="flat"
@@ -105,18 +118,19 @@ const ShippingPage = ({ history }) => {
                     onClick={goBack}
                 />
                 <BasicButton
-                    text={mainApp.inTransit? "Confirmar llegada" : "Confirmar salida"}
+                    text={mainApp.inTransit? "Parar tracking" : "Empezar tracking"}
                     color={primary}
                     textStyle={{fontWeight: '700', color: 'white'}}
                     buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
                     onClick={mainApp.inTransit? confirmArrive : confirmDeparture}
                 />
+                <br />
             </Paper>
         </div>
     )
 }
 
-const sendProductLoadIn = async (data, account, type) => {
+const sendProductStatusUpdate = async (data, account, type) => {
 
     navigator.geolocation.getCurrentPosition(result => location = result);
     const dataString = JSON.stringify({
@@ -124,8 +138,8 @@ const sendProductLoadIn = async (data, account, type) => {
         data: {
             productId: data,
             coords: {
-                latitude: location? location.coords.latitude : Math.random(),
-                longitude: location? location.coords.longitude : Math.random()
+                latitude: location? location.coords.latitude : "41.656265795658165",
+                longitude: location? location.coords.longitude : "-4.737810528601315"
             },
         },
     });

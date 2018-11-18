@@ -122,25 +122,26 @@ export const getLoadedItems = () => {
 
 let interval = null;
 const startTracking = account => {
-    const items = getLoadedItems();
     interval = setInterval(() => {
+        const items = getLoadedItems();
+        if(items.length === 0){
+            return;
+        }
         for(let item of items){
             sendProductLocationUpdate(item[0], account, 'location')
         }
     }, LOCATION_INTERVAL);
-
 }
 
 const sendProductLocationUpdate = async (productHash, account, type) => {
     navigator.geolocation.getCurrentPosition(result => location = result);
-
     const dataString = JSON.stringify({
         type: type,
         data: {
             productId: productHash,
             coords: {
-                latitude: location.coords.latitude,
-                longitude: location.coords.longitude
+                latitude: location? location.coords.latitude : "41.656265795658165",
+                longitude: location? location.coords.longitude : "-4.737810528601315"
             },
         },
     });
