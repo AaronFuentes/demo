@@ -67,7 +67,7 @@ const ShippingPage = ({ history }) => {
         const key = event.nativeEvent;
 
         if(key.keyCode === 13){
-            searchQRData(event.target.value);
+            searchQRData(extractHashFromURL(event.target.value));
         }
     }
 

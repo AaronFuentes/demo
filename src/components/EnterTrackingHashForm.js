@@ -11,7 +11,7 @@ const EnterTrackingHashForm = ({ history }) => {
     const [hash, updateHash] = React.useState('');
 
     const enterCode = hash => {
-        history.push(`/tracking/${hash}`);
+        history.push(`/tracking/${extractHashFromURL(hash)}`);
     }
 
     const setHashToSearch = event => {
