@@ -30,10 +30,27 @@ class ProductTag extends React.Component {
 
     render() {
         const { product, qr } = this.props;
-        console.log(qr);
         return (
-            <div style={{width: '100%', overflow: 'hidden'}}>
-            <span style={{fontWeight: '700'}}><br />IDENTIFICADOR<br /></span>{extractHashFromURL(qr).slice(0, extractHashFromURL(qr).length - 1)}<br />
+            <div style={{width: '100%', overflow: 'hidden',}}>
+                <Grid style={{textAlign: 'left', marginBottom: '1em'}}>
+                    <GridItem xs={12} md={4} lg={3} stlye={{display: 'flex', justifyContent: 'flex-start'}}>
+                        <span style={{fontWeight: '700'}}>IDENTIFICADOR:</span>
+                    </GridItem>
+                    <GridItem xs={12} md={8} lg={9} stlye={{display: 'flex', justifyContent: 'flex-start'}}>
+                        {extractHashFromURL(qr).slice(0, extractHashFromURL(qr).length - 1)}<br />
+                    </GridItem>
+                    <GridItem xs={12} md={4} lg={3} stlye={{display: 'flex', justifyContent: 'flex-start'}}>
+                        <span style={{fontWeight: '700'}}>T. HASH: </span>
+                    </GridItem>
+                    <GridItem xs={12} md={8} lg={9} className="truncate" stlye={{display: 'flex', justifyContent: 'flex-start'}}>
+                        <a href={`https://alastria-explorer.councilbox.com/transaction/${this.props.txHash}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                        >
+                            {this.props.txHash}
+                        </a>
+                    </GridItem>
+                </Grid>            
                 <ReactToPrint
                     trigger={() => <span onClick={this.print} style={{color: secondary, cursor: 'pointer'}}>Imprimir etiqueta</span>}
                     content={() => this.tagRef}

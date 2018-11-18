@@ -16,6 +16,7 @@ const RegisterPage = ({ history }) => {
     const [code, updateBarcode] = React.useState('');
     const [loading, setLoading] = React.useState(false);
     const [product, setProduct] = React.useState(null);
+    const [txHash, setTXHash] = React.useState('');
     const qrValue = React.useRef(null);
     const [barcodeError, setBarcodeError] = React.useState('');
     const [generatedCode, setCode] = React.useState(null);
@@ -55,6 +56,7 @@ const RegisterPage = ({ history }) => {
         qrValue.current.select();
         document.execCommand('copy');
         setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.product_hash}`));
+        setTXHash(response.tx_hash);
     }
 
     const handleEnter = event => {
@@ -171,6 +173,7 @@ const RegisterPage = ({ history }) => {
                         <ProductTag
                             product={product}
                             qr={generatedCode}
+                            txHash={txHash}
                         />
                     </>
                 }

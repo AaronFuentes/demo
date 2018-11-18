@@ -2,6 +2,7 @@ import React from 'react';
 import { lightGrey, primary } from '../styles/colors';
 import { Paper } from 'material-ui';
 import FileUploadButton from '../UI/FileUploadButton';
+import bg from '../assets/img/bg.jpg';
 import { MainAppContext } from '../containers/App';
 const Accounts = require('web3-eth-accounts');
 const accounts = new Accounts();
@@ -38,11 +39,17 @@ const LoginPage = () => {
                 height: '100%',
                 backgroundColor: lightGrey,
                 display: 'flex',
+                background: `url(${bg})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center center',
                 alignItems: 'center',
                 justifyContent: 'center'
             }}
         >
-            <Paper>
+            <Paper style={{height: '40%', padding: '4em', marginRight: '4em', display: 'flex', alignItems: 'center', flexDirection: 'column'}}>
+                <h2 style={{color: primary}}>Bienvenido/a</h2>
+                <h4 style={{marginBottom: '2em'}}>Para comenzar carga los datos de tu cuenta</h4>
                 <div>
                     <FileUploadButton
                         text={'Cargar credenciales'}
