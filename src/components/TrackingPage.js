@@ -160,7 +160,7 @@ const getTraceTimeline = trace => {
         case 'location':
             return (
                 <Timeline.Item dot={<i className="fas fa-truck-moving"></i>} key={trace.tx_hash}>
-                    <a href={`https://www.google.com/maps/place/${trace.coords}`} target="_blank" rel="noreferrer noopener">
+                    <a href={`https://www.google.com/maps/place/${trace.data.coords.latitude} ${trace.data.coords.longitude}`} target="_blank" rel="noreferrer noopener">
                         En tránsito
                     </a>
                     <TransactionLink

@@ -33,7 +33,7 @@ class ProductTag extends React.Component {
         console.log(qr);
         return (
             <div style={{width: '100%', overflow: 'hidden'}}>
-                <span style={{fontWeight: '700'}}>Hash de la transacción: </span>{extractHashFromURL(qr).slice(0, extractHashFromURL(qr).length - 1)}<br />
+            <span style={{fontWeight: '700'}}><br />IDENTIFICADOR<br /></span>{extractHashFromURL(qr).slice(0, extractHashFromURL(qr).length - 1)}<br />
                 <ReactToPrint
                     trigger={() => <span onClick={this.print} style={{color: secondary, cursor: 'pointer'}}>Imprimir etiqueta</span>}
                     content={() => this.tagRef}
