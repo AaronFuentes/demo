@@ -8,14 +8,15 @@ ENV APP_PATH /opt/webapp
 RUN mkdir /opt/webapp
 
 COPY package.json $APP_PATH
-COPY public $APP_PATH/public
-COPY src $APP_PATH/src
 
 RUN \
     npm install -g serve \
     && cd $APP_PATH \
-    && npm install \
-    && npm run build --production
+    && npm install
+
+ENV UPDATE 1
+COPY public $APP_PATH/public
+COPY src $APP_PATH/src
 
 WORKDIR $APP_PATH
-ENTRYPOINT exec serve -p 80 -s build
+ENTRYPOINT npm start

@@ -1,2 +1,2 @@
 #!/bin/bash
-docker build -t aoc-webapp .
+docker build -t brunneis/aoc-webapp .

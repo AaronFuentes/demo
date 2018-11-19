@@ -3,7 +3,7 @@ import { HEADER_HEIGHT } from '../constants';
 import { darkGrey } from '../styles/colors';
 import { MainAppContext } from '../containers/App';
 import UserMenu from './UserMenu';
-import logo from '../assets/logo.svg';
+import logo from '../assets/logo-white.png';
 
 const Header = () => {
     const login = React.useContext(MainAppContext);
@@ -22,7 +22,7 @@ const Header = () => {
 
             </div>
             <div style={{width: '60%'}}>
-                <img src={logo} style={{height: `2.7em`, width: 'auto'}} alt="demo-logo" />
+                <img src={logo} style={{marginTop: '.5em', height: '2em', width: 'auto'}} alt="demo-logo" />
             </div>
             <div style={{
                 width: '20%',
