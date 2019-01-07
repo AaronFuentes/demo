@@ -7,15 +7,20 @@ import EnterTrackingHashForm from './EnterTrackingHashForm';
 import LoadingSection from '../UI/LoadingSection';
 import BasicButton from '../UI/BasicButton';
 import { API_URL } from '../config';
-import ReactJson from 'react-json-view'
+import ReactJson from 'react-json-view';
+import GraphContainer from './GraphContainer';
+import Grid from '../UI/Grid';
+import GridItem from '../UI/GridItem';
+
 /*
  Replace the geolocation generation for the data in the transaction
 */
 
 const TrackingPage = ({ match, history }) => {
-    const [loading, updateLoading] = React.useState(true);
+    const [loading, updateLoading] = React.useState(false);
     const [rawData, updateRawData] = React.useState(false);
     const [data, setData] = React.useState(null);
+    const [focusedNode, setFocusedNode] = React.useState(null);
     React.useEffect(async () => {
         if(match.params.hash){
             const response = await fetch(`${API_URL}/api/v1.0/product/${match.params.hash}`);
@@ -27,11 +32,11 @@ const TrackingPage = ({ match, history }) => {
     }, [match.params.hash]);
 
     const width = window.innerWidth > 800? '800px' : '100%';
-    if(!match.params.hash){
+    /* if(!match.params.hash){
         return (
             <EnterTrackingHashForm />
         )
-    }
+    } */
 
     const goBack = () => {
         history.goBack();
@@ -42,24 +47,19 @@ const TrackingPage = ({ match, history }) => {
     }
 
     return (
-        <div style={{
+        <Grid style={{
             height: '100%',
             width: '100%',
             backgroundColor: lightGrey,
             overflowY: 'auto'
         }}>
-            <div
-                style={{
-                    width: '100%',
-                    display: 'flex',
-                    paddingTop: '1.3em',
-                    paddingBottom: '1.3em',
-                    justifyContent: 'center',
-                }}
-            >
+            <GridItem lg={3}>
+
+            </GridItem>
+            <GridItem lg={6}>
                 <Paper
                     style={{
-                        width: width,
+                        width: '100%',
                         padding: '2.3em',
                         display: 'flex',
                         alignItems: 'center',
@@ -103,11 +103,18 @@ const TrackingPage = ({ match, history }) => {
                                     />
                                 </div>
                             :
-                                <Timeline>
-                                    {data.trace.map(trace => (
-                                        getTraceTimeline(trace)
-                                    ))}
-                                </Timeline>
+                                <>
+                                {/*     <Timeline>
+                                        {data.trace.map(trace => (
+                                            getTraceTimeline(trace)
+                                        ))}
+                                    </Timeline> */}
+                                    <GraphContainer
+                                        trace={'trace'}
+                                        focusedNode={focusedNode}
+                                        setFocusedNode={setFocusedNode}
+                                    />
+                                </>
                             }
                             <BasicButton
                                 text="Volver"
@@ -120,8 +127,16 @@ const TrackingPage = ({ match, history }) => {
                     }
 
                 </Paper>
-            </div>
-        </div>
+            </GridItem>
+            <GridItem lg={3}>
+                {focusedNode  &&
+                    <Paper style={{width: '100%', border: '1px solid gainsboro'}}>
+                        <div>{focusedNode.label}</div>
+                        <div>Body</div>
+                    </Paper>
+                }
+            </GridItem>
+        </Grid>
     )
 }
 
