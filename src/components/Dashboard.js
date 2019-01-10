@@ -23,7 +23,7 @@ const blockStyle = {
 const Dashboard = () => {
     return(
         <Grid>
-            <GridItem xs={12} md={4} lg={4} style={container}>
+            <GridItem xs={12} md={3} lg={3} style={container}>
                 <Link to="/register">
                     <Paper style={blockStyle}>
                         <i className="fas fa-folder-plus" style={{fontSize: '80px'}}></i>
@@ -31,7 +31,15 @@ const Dashboard = () => {
                     </Paper>
                 </Link>
             </GridItem>
-            <GridItem xs={12} md={4} lg={4} style={container}>
+            <GridItem xs={12} md={3} lg={3} style={container}>
+                <Link to="/events">
+                    <Paper style={blockStyle}>
+                        <i className="fas fa-ellipsis-v" style={{fontSize: '80px'}}></i>
+                        Añadir evento a la traza
+                    </Paper>
+                </Link>
+            </GridItem>
+            <GridItem xs={12} md={3} lg={3} style={container}>
                 <Link to="/shipping">
                     <Paper style={blockStyle}>
                         <i className="far fa-list-alt" style={{fontSize: '80px'}}></i>
@@ -40,7 +48,7 @@ const Dashboard = () => {
                     </Paper>
                 </Link>
             </GridItem>
-            <GridItem xs={12} md={4} lg={4} style={container}>
+            <GridItem xs={12} md={3} lg={3} style={container}>
                 <Link to="/tracking">
                     <Paper style={blockStyle}>
                         <i className="fas fa-list-ol" style={{fontSize: '80px'}}></i>

@@ -8,9 +8,12 @@ import BasicButton from '../UI/BasicButton';
 import { withRouter } from 'react-router-dom';
 import { MainAppContext } from '../containers/App';
 import ProductTag from './ProductTag';
+import { createSalt } from '../utils/hashUtils';
 import web3 from 'web3';
 import LoadingSection from '../UI/LoadingSection';
 const TRANSPORTER_ADDRESS = '0x15947aC4B9f0f66fF17C2AA6510e3671f385Dd4e';
+
+createSalt();
 
 const RegisterPage = ({ history }) => {
     const [code, updateBarcode] = React.useState('');
@@ -35,21 +38,23 @@ const RegisterPage = ({ history }) => {
     const registerUnit = async () => {
         setLoading(true);
         const response = await sendRegisterTransaction({
-            type: 'registration',
-            transporter: TRANSPORTER_ADDRESS,
-            origin: mainAppContext.credentials.address,
-            productType: "9c22ff5f21f0b81b113e63f7db6da94fedef11b2119b4088b89664fb9a3cb658",
-            data: {
-                expirationDate: "1544896572",
-                barcode: code,
-                batch: 'AE23GH',
-                euCode: 'EU/1233446/27',
-                ingredients: 'Leche pasteurizada de vaca, sal, cuajo y fermentos lácticos.',
-                name: 'Queso de mezcla madurado',
-                other: '',
-                producer: 'Quesos CBX',
-                weight: '400gr'
-            }
+            type: 'NEW_TRACE', //ADD_EVENT
+            trace: '0x0000000000000000000000000000000000000000000000000000000000000000',
+            descriptor: [],
+            salt: createSalt(),
+            fragments: [JSON.stringify({
+                data: {
+                    expirationDate: "1544896572",
+                    barcode: code,
+                    batch: 'AE23GH',
+                    euCode: 'EU/1233446/27',
+                    ingredients: 'Leche pasteurizada de vaca, sal, cuajo y fermentos lácticos.',
+                    name: 'Queso de mezcla madurado',
+                    other: '',
+                    producer: 'Quesos CBX',
+                    weight: '400gr'
+                }})
+            ]
         }, mainAppContext.credentials);
         setLoading(false);
         qrValue.current.value = response.product_hash;
@@ -61,7 +66,6 @@ const RegisterPage = ({ history }) => {
 
     const handleEnter = event => {
         const key = event.nativeEvent;
-
         if(key.keyCode === 13){
             searchCodeData(event.target.value);
         }
@@ -89,7 +93,6 @@ const RegisterPage = ({ history }) => {
                 producer: 'Quesos CBX',
                 weight: '400gr'
             }
-
             updateBarcode(bc);
             setProduct(response);
         } else {
@@ -158,7 +161,7 @@ const RegisterPage = ({ history }) => {
                         color={primary}
                         type="raised"
                         textStyle={{fontWeight: '700', color: 'white'}}
-                        disabled={!product}
+                        //disabled={!product}
                         onClick={registerUnit}
                     />
                 </div>
@@ -182,16 +185,43 @@ const RegisterPage = ({ history }) => {
     )
 }
 
-const sendRegisterTransaction = async (data, account) => {
-    const dataString = JSON.stringify(data);
-    const hashedMessage = web3.utils.sha3(dataString);
-    const signedHash = account.sign(hashedMessage);
+const sendRegisterTransaction = async (content, account) => {
+    //web3.utils.keccak256
+
+    const dataString = JSON.stringify(content);
+    const contentBeforeHash = JSON.stringify({
+        type: content.type,
+        trace: content.trace,
+        fragment_hashes: content.fragments.map(fragment => web3.utils.keccak256(fragment).substring(2)),
+        descriptor: content.descriptor,
+        salt: content.salt
+    });
+    console.log(contentBeforeHash);
+    const contentHash = web3.utils.keccak256(contentBeforeHash);
+    console.log(contentHash);
+    const dataToSign = JSON.stringify({
+        version: 1,
+        nodecode: 0,
+        from: [],
+        content_hash: contentHash.substring(2)
+    });
+
+    console.log(dataToSign);
+
+    const signedContent = account.sign(dataToSign);
+
+    console.log(signedContent);
+
+    //const hashedMessage = web3.utils.sha3(dataString);
+    //const signedHash = account.sign(hashedMessage);
+
 
     const response = await fetch(`${API_URL}/api/v1.0/products`, {
         method: 'POST',
         body: JSON.stringify({
-            message: dataString,
-            signature: signedHash.signature
+            event_tx: signedContent.message,
+            content,
+            signature: signedContent.signature
         })
     });
 

@@ -7,3 +7,8 @@ export const extractHashFromURL = url => {
     hash.replace(/"/g, '').replace(/'/g, '').trim();
     return hash;
 }
+
+export const createSalt = () => {
+    let r = Math.random().toString(36).substring(3);
+    return r;
+}

@@ -26,6 +26,7 @@ const TextInput = ({
 	helpDescription,
 	autoFocus,
 	id,
+	style,
 	max,
 	disabled
 }) => (
@@ -48,7 +49,8 @@ const TextInput = ({
 			multiline={multiline}
 			style={{
 				marginTop: 0,
-				width: "100%"
+				width: "100%",
+				...style
 			}}
 			placeholder={placeholder}
 			InputProps={{

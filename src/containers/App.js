@@ -12,6 +12,7 @@ import TrackingPage from '../components/TrackingPage';
 import RegisterPage from '../components/RegisterPage';
 import ShippingPage from '../components/ShippingPage';
 import DeliveryPage from '../components/DeliveryPage';
+import EventPage from '../components/EventPage';
 import "antd/dist/antd.css";
 export const MainAppContext = React.createContext();
 const Accounts = require('web3-eth-accounts');
@@ -19,6 +20,8 @@ const accounts = new Accounts();
 let location;
 navigator.geolocation.getCurrentPosition(result => location = result);
 
+const string = '8775816576c7c78a0112a69180adcba77989dd4fb23b3af76e3958f9ed238ed20b5c6d410c9f9707875a6865912184350c12ea1a80dc4f5ae1d7fe162544685d'.substring(0, 64);
+console.log(string);
 
 class App extends React.Component {
 
@@ -90,6 +93,7 @@ class App extends React.Component {
                                             <Route exact path="/" component={MainPage} />
                                             <Route path="/register" component={RegisterPage} />
                                             <Route path="/shipping" component={ShippingPage} />
+                                            <Route path="/events" component={EventPage} />
                                             <Route path="/delivery" component={DeliveryPage} />
                                             <Route path="/tracking/:hash?" component={TrackingPage} />
                                             <Route path="*" component={this.goToRoot} />

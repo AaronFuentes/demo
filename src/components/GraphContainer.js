@@ -150,14 +150,14 @@ const getLeveledTraces = trace => {
             level: actualLevel,
             traces: trace[key]
         })
-    });  
-    
+    });
+
     return leveledTraces;
 }
 
 const transformTraceToGraph = (trace, setNode) => {
     let graph = {
-        isStatic: true,
+        isStatic: false,
         "isDirected": 1,
         "isVertical": 1,
         nodes: [],
@@ -165,8 +165,7 @@ const transformTraceToGraph = (trace, setNode) => {
     };
     const width = window.innerWidth * 0.45;
     const offset = 125;
-    const xOffset = 75;
-    //const 
+    const xOffset = 65;
 
     const leveledTraces = getLeveledTraces(trace);
     let depthLevels = [];
@@ -215,7 +214,7 @@ const transformTraceToGraph = (trace, setNode) => {
         })
     });
 
-    graphHeight = 75 * depthLevels.reduce((a, b) => a + b, 0);
+    graphHeight = xOffset * depthLevels.reduce((a, b) => a + b, 0);
 
     return graph;
 }
@@ -235,14 +234,14 @@ const GraphContainer = ({ trace, setFocusedNode }) => {
                 height={graphHeight}
                 json={data}
                 scale={0.6}
-                Node={GitNode}
+                Node={TraceNode}
                 shouldContainerFitContent={false}
             />
         </div>
     )
 }
 
-class GitNode extends Node {
+class TraceNode extends Node {
     renderContainer({content, isDragging}) {
         //const className = `Node ${isDragging ? 'Node_dragging_yes' : ''}`;
         console.log(content);
