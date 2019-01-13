@@ -57,11 +57,11 @@ const RegisterPage = ({ history }) => {
             ]
         }, mainAppContext.credentials);
         setLoading(false);
-        qrValue.current.value = response.product_hash;
+        qrValue.current.value = response.evhash;
         qrValue.current.select();
         document.execCommand('copy');
-        setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.product_hash}`));
-        setTXHash(response.tx_hash);
+        setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.evhash}`));
+        setTXHash(response.evidence.substring(0, 64));
     }
 
     const handleEnter = event => {
@@ -186,8 +186,6 @@ const RegisterPage = ({ history }) => {
 }
 
 const sendRegisterTransaction = async (content, account) => {
-    //web3.utils.keccak256
-
     const dataString = JSON.stringify(content);
     const contentBeforeHash = JSON.stringify({
         type: content.type,
@@ -196,9 +194,7 @@ const sendRegisterTransaction = async (content, account) => {
         descriptor: content.descriptor,
         salt: content.salt
     });
-    console.log(contentBeforeHash);
     const contentHash = web3.utils.keccak256(contentBeforeHash);
-    console.log(contentHash);
     const dataToSign = JSON.stringify({
         version: 1,
         nodecode: 0,
@@ -206,15 +202,7 @@ const sendRegisterTransaction = async (content, account) => {
         content_hash: contentHash.substring(2)
     });
 
-    console.log(dataToSign);
-
     const signedContent = account.sign(dataToSign);
-
-    console.log(signedContent);
-
-    //const hashedMessage = web3.utils.sha3(dataString);
-    //const signedHash = account.sign(hashedMessage);
-
 
     const response = await fetch(`${API_URL}/api/v1.0/products`, {
         method: 'POST',
