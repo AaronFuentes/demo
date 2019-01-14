@@ -47,7 +47,10 @@ const EventPage = () => {
             descriptor: [],
             salt: createSalt(),
             fragments: [JSON.stringify({
-                data: 'transform'
+                data: {
+                    eventType: formData.eventType,
+                    eventData: formData.eventData
+                }
             })]
         }, mainAppContext.credentials);
     }

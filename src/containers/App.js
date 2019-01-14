@@ -20,8 +20,8 @@ const accounts = new Accounts();
 let location;
 navigator.geolocation.getCurrentPosition(result => location = result);
 
-const string = '8775816576c7c78a0112a69180adcba77989dd4fb23b3af76e3958f9ed238ed20b5c6d410c9f9707875a6865912184350c12ea1a80dc4f5ae1d7fe162544685d'.substring(0, 64);
-console.log(string);
+/* const string = '8775816576c7c78a0112a69180adcba77989dd4fb23b3af76e3958f9ed238ed20b5c6d410c9f9707875a6865912184350c12ea1a80dc4f5ae1d7fe162544685d'.substring(0, 64);
+console.log(string); */
 
 class App extends React.Component {
 

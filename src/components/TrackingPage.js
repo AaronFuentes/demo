@@ -23,7 +23,7 @@ const TrackingPage = ({ match, history }) => {
     const [focusedNode, setFocusedNode] = React.useState(null);
     React.useEffect(async () => {
         if(match.params.hash){
-            const response = await fetch(`${API_URL}/api/v1.0/product/${match.params.hash}`);
+            const response = await fetch(`${API_URL}/api/v1.0/products/${match.params.hash}`);
             const json = await response.json();
             console.log(json);
             setData(json);
@@ -32,11 +32,11 @@ const TrackingPage = ({ match, history }) => {
     }, [match.params.hash]);
 
     const width = window.innerWidth > 800? '800px' : '100%';
-    /* if(!match.params.hash){
+    if(!match.params.hash){
         return (
             <EnterTrackingHashForm />
         )
-    } */
+    }
 
     const goBack = () => {
         history.goBack();
@@ -104,13 +104,8 @@ const TrackingPage = ({ match, history }) => {
                                 </div>
                             :
                                 <>
-                                {/*     <Timeline>
-                                        {data.trace.map(trace => (
-                                            getTraceTimeline(trace)
-                                        ))}
-                                    </Timeline> */}
                                     <GraphContainer
-                                        trace={'trace'}
+                                        trace={data}
                                         focusedNode={focusedNode}
                                         setFocusedNode={setFocusedNode}
                                     />
@@ -131,8 +126,7 @@ const TrackingPage = ({ match, history }) => {
             <GridItem lg={3}>
                 {focusedNode  &&
                     <Paper style={{width: '100%', border: '1px solid gainsboro'}}>
-                        <div>{focusedNode.label}</div>
-                        <div>Body</div>
+                        <div>{focusedNode.fragments}</div>
                     </Paper>
                 }
             </GridItem>

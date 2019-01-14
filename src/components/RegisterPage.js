@@ -18,7 +18,17 @@ createSalt();
 const RegisterPage = ({ history }) => {
     const [code, updateBarcode] = React.useState('');
     const [loading, setLoading] = React.useState(false);
-    const [product, setProduct] = React.useState(null);
+    const [product, setProduct] = React.useState({
+        expirationDate: "1544896572",
+        barcode: code,
+        batch: 'AE23GH',
+        euCode: 'EU/1233446/27',
+        ingredients: 'Leche pasteurizada de vaca, sal, cuajo y fermentos lácticos.',
+        name: 'Queso de mezcla madurado',
+        other: '',
+        producer: 'Quesos CBX',
+        weight: '400gr'
+    });
     const [txHash, setTXHash] = React.useState('');
     const qrValue = React.useRef(null);
     const [barcodeError, setBarcodeError] = React.useState('');
@@ -61,7 +71,7 @@ const RegisterPage = ({ history }) => {
         qrValue.current.select();
         document.execCommand('copy');
         setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.evhash}`));
-        setTXHash(response.evidence.substring(0, 64));
+        setTXHash(`0x${response.evidence.substring(0, 64)}`);
     }
 
     const handleEnter = event => {
@@ -198,7 +208,7 @@ const sendRegisterTransaction = async (content, account) => {
     const dataToSign = JSON.stringify({
         version: 1,
         nodecode: 0,
-        from: [],
+        from: ['e1319111e7e521925da9694e67fbf138f09d470479f2c0a793da079dfd5d6b52'],
         content_hash: contentHash.substring(2)
     });
 

@@ -20,7 +20,6 @@ const setCanvasToPrint = () => {
 }
 
 
-
 class ProductTag extends React.Component {
 
     componentDidMount() {
@@ -50,7 +49,7 @@ class ProductTag extends React.Component {
                             {this.props.txHash}
                         </a>
                     </GridItem>
-                </Grid>            
+                </Grid>
                 <ReactToPrint
                     trigger={() => <span onClick={this.print} style={{color: secondary, cursor: 'pointer'}}>Imprimir etiqueta</span>}
                     content={() => this.tagRef}
