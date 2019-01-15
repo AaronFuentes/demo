@@ -23,11 +23,14 @@ const TrackingPage = ({ match, history }) => {
     const [focusedNode, setFocusedNode] = React.useState(null);
     React.useEffect(async () => {
         if(match.params.hash){
-            const response = await fetch(`${API_URL}/api/v1.0/products/${match.params.hash}`);
-            const json = await response.json();
-            console.log(json);
-            setData(json);
-            updateLoading(false);
+            try {
+                const response = await fetch(`${API_URL}/api/v1.0/products/${match.params.hash}`);
+                const json = await response.json();
+                setData(json);
+                updateLoading(false);
+            } catch (error){
+                console.log(error);
+            }
         }
     }, [match.params.hash]);
 
@@ -45,6 +48,10 @@ const TrackingPage = ({ match, history }) => {
     const toggleRawData = () => {
         updateRawData(!rawData);
     }
+
+
+    const nodeData = focusedNode? JSON.parse(focusedNode.fragments) : {};
+    console.log(nodeData);
 
     return (
         <Grid style={{
@@ -126,7 +133,12 @@ const TrackingPage = ({ match, history }) => {
             <GridItem lg={3}>
                 {focusedNode  &&
                     <Paper style={{width: '100%', border: '1px solid gainsboro'}}>
-                        <div>{focusedNode.fragments}</div>
+                        <Grid>{Object.keys(nodeData.data).map(key => (
+                            <>
+                                <GridItem xs={4} md={4} lg={4} style={{fontWeight: '700'}}>{key}</GridItem>
+                                <GridItem xs={8} md={8} lg={8}>{nodeData.data[key]}</GridItem>
+                            </>
+                        ))}</Grid>
                     </Paper>
                 }
             </GridItem>

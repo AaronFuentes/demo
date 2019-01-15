@@ -196,7 +196,6 @@ const RegisterPage = ({ history }) => {
 }
 
 const sendRegisterTransaction = async (content, account) => {
-    const dataString = JSON.stringify(content);
     const contentBeforeHash = JSON.stringify({
         type: content.type,
         trace: content.trace,
@@ -208,7 +207,7 @@ const sendRegisterTransaction = async (content, account) => {
     const dataToSign = JSON.stringify({
         version: 1,
         nodecode: 0,
-        from: ['e1319111e7e521925da9694e67fbf138f09d470479f2c0a793da079dfd5d6b52'],
+        from: ['070899d6831eec8c5ee3c80e0f7c881de093d5c15de744a5a92618e379fca457'],
         content_hash: contentHash.substring(2)
     });
 

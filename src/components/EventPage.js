@@ -3,10 +3,14 @@ import { lightGrey, primary, secondary } from '../styles/colors';
 import { Paper } from 'material-ui';
 import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
+import { Link } from 'react-router-dom';
 import { MainAppContext } from '../containers/App';
 import web3 from 'web3';
 import { createSalt } from '../utils/hashUtils';
 import { API_URL } from '../config';
+import LoadingSection from '../UI/LoadingSection';
+import ExplorerLink from './ExplorerLink';
+
 
 const initialState = {
     traceId: '',
@@ -17,30 +21,36 @@ const initialState = {
 const EventPage = () => {
 
     const [formData, setFormData] = React.useState(initialState);
+    const [loading, setLoading] = React.useState(false);
+    const [event, setEvent] = React.useState({
+        txHash: '',
+        evHash: ''
+    });
     const mainAppContext = React.useContext(MainAppContext);
 
     const updateTraceID = event => {
         setFormData({
             ...formData,
-            traceId: event.target.value
+            traceId: event.target.value.trim()
         });
     }
 
     const updateEventType = event => {
         setFormData({
             ...formData,
-            eventType: event.target.value
+            eventType: event.target.value.trim()
         });
     }
 
     const updateEventData = event => {
         setFormData({
             ...formData,
-            eventData: event.target.value
+            eventData: event.target.value.trim()
         });
     }
 
     const sendEvent = async () => {
+        setLoading(true);
         const response = await addEventToTrace({
             type: 'ADD_EVENT', //NEW_TRACE
             trace: formData.traceId,
@@ -53,6 +63,13 @@ const EventPage = () => {
                 }
             })]
         }, mainAppContext.credentials);
+        //LINK A LA URL DE LA TRAZA
+        //setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.evhash}`));
+        setEvent({
+            txHash: `0x${response.evidence.substring(0, 64)}`,
+            evHash: response.evhash
+        });
+        setLoading(false);
     }
 
     return (
@@ -105,18 +122,35 @@ const EventPage = () => {
                 <BasicButton
                     text={'Enviar evento'}
                     color={primary}
+                    loading={loading}
                     textStyle={{fontWeight: '700', color: 'white'}}
                     buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
                     onClick={sendEvent}
                 />
+                <div style={{marginTop: '10px'}}>
+                    {loading &&
+                        <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
+                            <LoadingSection />
+                        </div>
+                    }
+                    {event.txHash &&
+                        <>
+                            Link al explorador de bloques:<br />
+                            <ExplorerLink
+                                txHash={event.txHash}
+                            />
+                            <br/>
+                            Link al visualizador de traza: <br/>
+                            <Link to={`/tracking/${formData.traceId}`}>{formData.traceId}</Link>
+                        </>
+                    }
+                </div>
             </Paper>
         </div>
     )
 }
 
 const addEventToTrace = async (content, account) => {
-    //web3.utils.keccak256
-
     const dataString = JSON.stringify(content);
     const contentBeforeHash = JSON.stringify({
         type: content.type,
@@ -125,25 +159,14 @@ const addEventToTrace = async (content, account) => {
         descriptor: content.descriptor,
         salt: content.salt
     });
-    console.log(contentBeforeHash);
     const contentHash = web3.utils.keccak256(contentBeforeHash);
-    console.log(contentHash);
     const dataToSign = JSON.stringify({
         version: 1,
         nodecode: 1,
         from: [content.trace],
         content_hash: contentHash.substring(2)
     });
-
-    console.log(dataToSign);
-
     const signedContent = account.sign(dataToSign);
-
-    console.log(signedContent);
-
-    //const hashedMessage = web3.utils.sha3(dataString);
-    //const signedHash = account.sign(hashedMessage);
-
 
     const response = await fetch(`${API_URL}/api/v1.0/products`, {
         method: 'POST',
@@ -156,32 +179,6 @@ const addEventToTrace = async (content, account) => {
 
     const json = await response.json();
     return json;
-
-
-
-
-    /*const dataString = JSON.stringify({
-        type: event.eventType,
-        data: event.eventData,
-    });
-    const hashedMessage = web3.utils.sha3(dataString);
-    const signedHash = account.sign(hashedMessage);
-
-    console.log(hashedMessage);
-    console.log(signedHash);
-    console.log(dataString);
-
-    const response = await fetch(`${API_URL}/api/v1.0/product/${event.traceId}`, {
-        method: 'PUT',
-        body: JSON.stringify({
-            message: dataString,
-            signature: signedHash.signature
-        })
-    }) */
-
-/*     const json = await response.json();
-    return json; */
-    return '';
 }
 
 export default EventPage;

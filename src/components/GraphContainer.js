@@ -26,7 +26,7 @@ const transformTraceToGraph = (trace, setNode) => {
         return graph;
     }
 
-    if(trace.event_tx.from){
+    if(trace.event_tx.from.length > 0){
         trace.event_tx.from.forEach((from, index) => {
             graph.nodes.push({
                 id: from.tx_hash,
@@ -36,7 +36,7 @@ const transformTraceToGraph = (trace, setNode) => {
                 },
                 position: {
                     x: xOffset * index,
-                    y: (fromOffset - 1) * 95
+                    y: (fromOffset - 1) * offset
                 },
                 size
             });
@@ -55,8 +55,8 @@ const transformTraceToGraph = (trace, setNode) => {
             setNode
         },
         position: {
-            x: 0,
-            y: (fromOffset - 1) * 95
+            x: (fromOffset - 1) * xOffset,
+            y: (fromOffset - 1) * offset
         },
         size
     });
@@ -70,7 +70,7 @@ const transformTraceToGraph = (trace, setNode) => {
                     setNode
                 },
                 position: {
-                    x: 0,
+                    x: (fromOffset - 1) * xOffset,
                     y: (index + fromOffset) * offset
                 },
                 size
@@ -111,7 +111,6 @@ const GraphContainer = ({ trace, setFocusedNode }) => {
 
 class TraceNode extends Node {
     renderContainer({content, isDragging}) {
-        console.log(content);
         return (
             <div
                 onClick={() => content.setNode(content)}
@@ -136,7 +135,7 @@ class TraceNode extends Node {
                         fontWeight: '700',
                         transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)'
                     }}
-                >{content.type}</div>
+                >{`${content.type} ${content.type === 'NEW_TRACE'? `- ${JSON.parse(content.fragments[0]).data.name}`: ''}`}</div>
             </div>
         );
     }

@@ -9,7 +9,7 @@ import ReactToPrint from "react-to-print";
 import Barcode from 'react-barcode';
 import { secondary } from '../styles/colors';
 import { extractHashFromURL } from '../utils/hashUtils';
-
+import ExplorerLink from './ExplorerLink';
 
 const setCanvasToPrint = () => {
     html2canvas(document.querySelector("#divcontents")).then(canvas => {
@@ -42,12 +42,9 @@ class ProductTag extends React.Component {
                         <span style={{fontWeight: '700'}}>T. HASH: </span>
                     </GridItem>
                     <GridItem xs={12} md={8} lg={9} className="truncate" stlye={{display: 'flex', justifyContent: 'flex-start'}}>
-                        <a href={`https://alastria-explorer.councilbox.com/transaction/${this.props.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            {this.props.txHash}
-                        </a>
+                        <ExplorerLink
+                            txHash={this.props.txHash}
+                        />
                     </GridItem>
                 </Grid>
                 <ReactToPrint

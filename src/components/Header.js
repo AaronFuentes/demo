@@ -4,6 +4,7 @@ import { darkGrey } from '../styles/colors';
 import { MainAppContext } from '../containers/App';
 import UserMenu from './UserMenu';
 import logo from '../assets/logo-white.png';
+import { Link } from 'react-router-dom';
 
 const Header = () => {
     const login = React.useContext(MainAppContext);
@@ -22,7 +23,7 @@ const Header = () => {
 
             </div>
             <div style={{width: '60%'}}>
-                <img src={logo} style={{marginTop: '.5em', height: '2em', width: 'auto'}} alt="demo-logo" />
+                <Link to="/"><img src={logo} style={{marginTop: '.5em', height: '2em', width: 'auto'}} alt="demo-logo" /></Link>
             </div>
             <div style={{
                 width: '20%',
