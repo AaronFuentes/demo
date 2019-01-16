@@ -5,6 +5,7 @@ import { withRouter } from 'react-router-dom';
 import { Paper } from 'material-ui';
 import { lightGrey } from '../styles/colors';
 import { extractHashFromURL } from '../utils/hashUtils';
+import bg from '../assets/img/lg-bg.png';
 
 const EnterTrackingHashForm = ({ history }) => {
 
@@ -36,7 +37,10 @@ const EnterTrackingHashForm = ({ history }) => {
                 width: '100%',
                 height: '100%',
                 display: 'flex',
-                backgroundColor: lightGrey,
+                background: `url(${bg})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center center',
                 alignItems: 'center',
                 justifyContent: 'center'
             }}

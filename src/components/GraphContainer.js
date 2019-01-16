@@ -7,14 +7,14 @@ const size = {
     height: 15
 }
 
-let graphHeight = 600;
-
 
 const transformTraceToGraph = (trace, setNode) => {
     const offset = 95;
     const xOffset = 65;
+    let graphHeight = 0;
     let fromOffset = 1;
     let graph = {
+        graphHeight,
         isStatic: false,
         "isDirected": 1,
         "isVertical": 1,
@@ -27,12 +27,15 @@ const transformTraceToGraph = (trace, setNode) => {
     }
 
     if(trace.event_tx.from.length > 0){
+        graphHeight += 95;
         trace.event_tx.from.forEach((from, index) => {
             graph.nodes.push({
                 id: from.tx_hash,
                 label: {
                     ...from.content,
-                    setNode
+                    fromTrace: from.evhash,
+                    setNode,
+                    tx_hash: from.tx_hash
                 },
                 position: {
                     x: xOffset * index,
@@ -52,6 +55,7 @@ const transformTraceToGraph = (trace, setNode) => {
         id: trace.tx_hash,
         label: {
             ...trace.content,
+            tx_hash: trace.tx_hash,
             setNode
         },
         position: {
@@ -61,12 +65,16 @@ const transformTraceToGraph = (trace, setNode) => {
         size
     });
 
+    graphHeight += 95;
+
     if(trace.events){
+        graphHeight += 95 * trace.events.length;
         trace.events.forEach((event, index) => {
             graph.nodes.push({
                 id: event.tx_hash,
                 label: {
                     ...event.content,
+                    tx_hash: event.tx_hash,
                     setNode
                 },
                 position: {
@@ -82,7 +90,7 @@ const transformTraceToGraph = (trace, setNode) => {
         });
     }
 
-    console.log(graph);
+    graph.graphHeight = graphHeight;
 
     return graph;
 }
@@ -96,10 +104,10 @@ const GraphContainer = ({ trace, setFocusedNode }) => {
     const data = transformTraceToGraph(trace, setNode);
 
     return (
-        <div onClick={(event) => console.log(event.clientX, event.clientY)} style={{width: '%'}} id="graph-container">
+        <div style={{width: '%'}} id="graph-container">
             <Graph
                 width={window.innerWidth * 0.45}
-                height={graphHeight}
+                height={data.graphHeight}
                 json={data}
                 scale={0.6}
                 Node={TraceNode}

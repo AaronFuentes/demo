@@ -4,6 +4,7 @@ import { Paper } from 'material-ui';
 import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
 import { withRouter } from 'react-router-dom';
+import bg from '../assets/img/lg-bg.png';
 
 /*
 Cod. trazabilidad
@@ -22,7 +23,10 @@ const DeliveryPage = ({ history }) => {
                 width: '100%',
                 height: '100%',
                 display: 'flex',
-                backgroundColor: lightGrey,
+                background: `url(${bg})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center center',
                 alignItems: 'center',
                 justifyContent: 'center'
             }}

@@ -1,6 +1,7 @@
 import React from 'react';
 import { Timeline } from 'antd';
 import { Paper } from 'material-ui';
+import { Link } from 'react-router-dom';
 import { lightGrey } from '../styles/colors';
 import { withRouter } from 'react-router-dom';
 import EnterTrackingHashForm from './EnterTrackingHashForm';
@@ -11,10 +12,9 @@ import ReactJson from 'react-json-view';
 import GraphContainer from './GraphContainer';
 import Grid from '../UI/Grid';
 import GridItem from '../UI/GridItem';
+import ExplorerLink from './ExplorerLink';
+import bg from '../assets/img/lg-bg.png';
 
-/*
- Replace the geolocation generation for the data in the transaction
-*/
 
 const TrackingPage = ({ match, history }) => {
     const [loading, updateLoading] = React.useState(false);
@@ -24,6 +24,8 @@ const TrackingPage = ({ match, history }) => {
     React.useEffect(async () => {
         if(match.params.hash){
             try {
+                updateLoading(true);
+                setFocusedNode(null);
                 const response = await fetch(`${API_URL}/api/v1.0/products/${match.params.hash}`);
                 const json = await response.json();
                 setData(json);
@@ -50,14 +52,20 @@ const TrackingPage = ({ match, history }) => {
     }
 
 
-    const nodeData = focusedNode? JSON.parse(focusedNode.fragments) : {};
-    console.log(nodeData);
+    let nodeData = focusedNode? {
+        ...JSON.parse(focusedNode.fragments),
+        tx_hash: focusedNode.tx_hash,
+        fromTrace: focusedNode.fromTrace
+     } : {};
 
     return (
         <Grid style={{
             height: '100%',
             width: '100%',
-            backgroundColor: lightGrey,
+            background: `url(${bg})`,
+            backgroundSize: 'cover',
+            backgroundRepeat: 'no-repeat',
+            backgroundPosition: 'center center',
             overflowY: 'auto'
         }}>
             <GridItem lg={3}>
@@ -132,13 +140,35 @@ const TrackingPage = ({ match, history }) => {
             </GridItem>
             <GridItem lg={3}>
                 {focusedNode  &&
-                    <Paper style={{width: '100%', border: '1px solid gainsboro'}}>
+                    <Paper style={{width: '100%', border: '1px solid gainsboro', overflow: 'hidden'}}>
                         <Grid>{Object.keys(nodeData.data).map(key => (
-                            <>
+                            <React.Fragment key={`focusednode_${key}`}>
                                 <GridItem xs={4} md={4} lg={4} style={{fontWeight: '700'}}>{key}</GridItem>
                                 <GridItem xs={8} md={8} lg={8}>{nodeData.data[key]}</GridItem>
-                            </>
-                        ))}</Grid>
+                            </React.Fragment>
+                        ))}
+                            <GridItem xs={4} md={4} lg={4} style={{fontWeight: '700'}}>Link explorador</GridItem>
+                            <GridItem xs={8} md={8} lg={8}>
+                                <ExplorerLink
+                                    txHash={nodeData.tx_hash}
+                                />
+                            </GridItem>
+                            {nodeData.fromTrace &&
+                                <GridItem xs={12} md={12} lg={12}>
+                                    <Link to={`/tracking/${nodeData.fromTrace}`}>
+                                        <BasicButton
+                                            text="Ver traza"
+                                            textStyle={{
+                                                fontWeight: '700',
+                                                textTransform: 'none'
+                                            }}
+                                        />
+                                    </Link>
+
+
+                                </GridItem>
+                            }
+                        </Grid>
                     </Paper>
                 }
             </GridItem>
@@ -156,7 +186,7 @@ const TransactionLink = ({ hash, text }) => (
     </a>
 )
 
-const getTraceTimeline = trace => {
+/* const getTraceTimeline = trace => {
     switch(trace.type){
         case 'registration':
             return (
@@ -202,6 +232,6 @@ const getTraceTimeline = trace => {
                 </Timeline.Item>
             )
     }
-}
+} */
 
 export default withRouter(TrackingPage);

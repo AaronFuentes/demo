@@ -1,5 +1,5 @@
 import React from 'react';
-import { lightGrey, primary, secondary } from '../styles/colors';
+import { lightGrey, primary } from '../styles/colors';
 import { Paper } from 'material-ui';
 import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
@@ -10,6 +10,7 @@ import { createSalt } from '../utils/hashUtils';
 import { API_URL } from '../config';
 import LoadingSection from '../UI/LoadingSection';
 import ExplorerLink from './ExplorerLink';
+import bg from '../assets/img/lg-bg.png';
 
 
 const initialState = {
@@ -63,8 +64,6 @@ const EventPage = () => {
                 }
             })]
         }, mainAppContext.credentials);
-        //LINK A LA URL DE LA TRAZA
-        //setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.evhash}`));
         setEvent({
             txHash: `0x${response.evidence.substring(0, 64)}`,
             evHash: response.evhash
@@ -78,7 +77,10 @@ const EventPage = () => {
                 width: '100%',
                 height: '100%',
                 display: 'flex',
-                backgroundColor: lightGrey,
+                background: `url(${bg})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center center',
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflowX: 'hidden'
@@ -119,6 +121,15 @@ const EventPage = () => {
                     }}
                     onChange={updateEventData}
                 />
+                <Link to="/">
+                    <BasicButton
+                        text="Volver"
+                        type="flat"
+                        textStyle={{fontWeight: '700', color: 'black'}}
+                        buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
+                    />
+                </Link>
+
                 <BasicButton
                     text={'Enviar evento'}
                     color={primary}
@@ -151,7 +162,6 @@ const EventPage = () => {
 }
 
 const addEventToTrace = async (content, account) => {
-    const dataString = JSON.stringify(content);
     const contentBeforeHash = JSON.stringify({
         type: content.type,
         trace: content.trace,

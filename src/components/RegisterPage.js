@@ -11,7 +11,7 @@ import ProductTag from './ProductTag';
 import { createSalt } from '../utils/hashUtils';
 import web3 from 'web3';
 import LoadingSection from '../UI/LoadingSection';
-const TRANSPORTER_ADDRESS = '0x15947aC4B9f0f66fF17C2AA6510e3671f385Dd4e';
+import bg from '../assets/img/lg-bg.png';
 
 createSalt();
 
@@ -116,7 +116,10 @@ const RegisterPage = ({ history }) => {
                 width: '100%',
                 height: '100%',
                 display: 'flex',
-                backgroundColor: lightGrey,
+                background: `url(${bg})`,
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+                backgroundPosition: 'center center',
                 alignItems: 'center',
                 justifyContent: 'center',
                 overflowX: 'hidden'
