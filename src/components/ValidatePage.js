@@ -19,7 +19,7 @@ const initialState = {
     eventData: ''
 }
 
-const EventPage = () => {
+const ValidatePage = () => {
 
     const [formData, setFormData] = React.useState(initialState);
     const [loading, setLoading] = React.useState(false);
@@ -29,24 +29,10 @@ const EventPage = () => {
     });
     const mainAppContext = React.useContext(MainAppContext);
 
-    const updateTraceID = event => {
+    const updateContent = event => {
         setFormData({
             ...formData,
-            traceId: event.target.value.trim()
-        });
-    }
-
-    const updateEventType = event => {
-        setFormData({
-            ...formData,
-            eventType: event.target.value
-        });
-    }
-
-    const updateEventData = event => {
-        setFormData({
-            ...formData,
-            eventData: event.target.value
+            content: event.target.value
         });
     }
 
@@ -55,14 +41,14 @@ const EventPage = () => {
         const response = await addEventToTrace({
             type: 'ADD_EVENT', //NEW_TRACE
             trace: formData.traceId,
+            descriptor: [],
+            salt: createSalt(),
             fragments: [JSON.stringify({
                 data: {
                     eventType: formData.eventType,
                     eventData: formData.eventData
                 }
-            })],
-            descriptor: [],
-            salt: createSalt(),
+            })]
         }, mainAppContext.credentials);
         setEvent({
             txHash: `0x${response.evidence.substring(0, 64)}`,
@@ -99,27 +85,11 @@ const EventPage = () => {
                     AÑADIR EVENTO
                 </h3>
                 <TextInput
-                    floatingText="Id de la traza"
+                    floatingText="Contenido a validar"
                     autoFocus={true}
-                    value={formData.traceId}
-                    onChange={updateTraceID}
-                />
-                <TextInput
-                    floatingText="Tipo de evento"
-                    value={formData.eventType}
-                    style={{
-                        marginTop: '2em'
-                    }}
-                    onChange={updateEventType}
-                />
-                <TextInput
-                    floatingText="Contenido"
                     multiline
-                    value={formData.eventData}
-                    style={{
-                        marginTop: '2em'
-                    }}
-                    onChange={updateEventData}
+                    value={formData.content}
+                    onChange={updateContent}
                 />
                 <Link to="/">
                     <BasicButton
@@ -178,41 +148,12 @@ const addEventToTrace = async (content, account) => {
     });
     const signedContent = account.sign(dataToSign);
 
-    const parsedEvent = JSON.parse(signedContent.message);
-    console.log(parsedEvent);
-
-    const sigHash = web3.utils.keccak256(signedContent.signature.substring(2));
-    console.log(signedContent.signature);
-    console.log(sigHash);
-
-    let stringToHash = '';
-
-    console.log(Object.keys(parsedEvent));
-
-    Object.keys(parsedEvent).forEach(key => {
-        if(key === 'from'){
-            stringToHash += parsedEvent[key].join('');
-        } else {
-            stringToHash += parsedEvent[key];
-        }
-    });
-
-    stringToHash += sigHash.substring(2);
-
-    console.log(stringToHash);
-
-    //const stringToHash = JSON.stringify(eventBeforeHash);
-
-    const evHash = web3.utils.keccak256(stringToHash);
-
-    console.log(evHash);
-
     const response = await fetch(`${API_URL}/api/v1.0/products`, {
         method: 'POST',
         body: JSON.stringify({
             event_tx: signedContent.message,
             content,
-            signature: signedContent.signature.substring(2)
+            signature: signedContent.signature
         })
     });
 
@@ -220,4 +161,4 @@ const addEventToTrace = async (content, account) => {
     return json;
 }
 
-export default EventPage;
+export default ValidatePage;

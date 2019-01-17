@@ -12,6 +12,7 @@ import TrackingPage from '../components/TrackingPage';
 import RegisterPage from '../components/RegisterPage';
 import ShippingPage from '../components/ShippingPage';
 import DeliveryPage from '../components/DeliveryPage';
+import ValidatePage from '../components/ValidatePage';
 import EventPage from '../components/EventPage';
 import "antd/dist/antd.css";
 export const MainAppContext = React.createContext();
@@ -92,9 +93,10 @@ class App extends React.Component {
                                         <Switch>
                                             <Route exact path="/" component={MainPage} />
                                             <Route path="/register" component={RegisterPage} />
-                                            <Route path="/shipping" component={ShippingPage} />
+                                            {/* <Route path="/shipping" component={ShippingPage} /> */}
                                             <Route path="/events" component={EventPage} />
                                             <Route path="/delivery" component={DeliveryPage} />
+                                            <Route path="/validate" component={ValidatePage} />
                                             <Route path="/tracking/:hash?" component={TrackingPage} />
                                             <Route path="*" component={this.goToRoot} />
                                         </Switch>

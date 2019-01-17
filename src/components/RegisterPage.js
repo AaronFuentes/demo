@@ -50,8 +50,6 @@ const RegisterPage = ({ history }) => {
         const response = await sendRegisterTransaction({
             type: 'NEW_TRACE', //ADD_EVENT
             trace: '0x0000000000000000000000000000000000000000000000000000000000000000',
-            descriptor: [],
-            salt: createSalt(),
             fragments: [JSON.stringify({
                 data: {
                     expirationDate: "1544896572",
@@ -64,7 +62,9 @@ const RegisterPage = ({ history }) => {
                     producer: 'Quesos CBX',
                     weight: '400gr'
                 }})
-            ]
+            ],
+            descriptor: [],
+            salt: createSalt(),
         }, mainAppContext.credentials);
         setLoading(false);
         qrValue.current.value = response.evhash;
