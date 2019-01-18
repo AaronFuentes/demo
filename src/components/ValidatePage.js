@@ -7,21 +7,23 @@ import { Link } from 'react-router-dom';
 import { MainAppContext } from '../containers/App';
 import web3 from 'web3';
 import { createSalt } from '../utils/hashUtils';
-import { API_URL } from '../config';
+import { API_URL, EXPLORER_API } from '../config';
 import LoadingSection from '../UI/LoadingSection';
 import ExplorerLink from './ExplorerLink';
 import bg from '../assets/img/lg-bg.png';
+import { createEvhash } from '../utils/hashUtils';
+import { Grid } from 'material-ui';
 
 
 const initialState = {
-    traceId: '',
-    eventType: '',
-    eventData: ''
+    content: '',
+    txHash: ''
 }
 
 const ValidatePage = () => {
 
     const [formData, setFormData] = React.useState(initialState);
+    const [message, setMessage] = React.useState(null);
     const [loading, setLoading] = React.useState(false);
     const [event, setEvent] = React.useState({
         txHash: '',
@@ -36,26 +38,44 @@ const ValidatePage = () => {
         });
     }
 
-    const sendEvent = async () => {
-        setLoading(true);
-        const response = await addEventToTrace({
-            type: 'ADD_EVENT', //NEW_TRACE
-            trace: formData.traceId,
-            descriptor: [],
-            salt: createSalt(),
-            fragments: [JSON.stringify({
-                data: {
-                    eventType: formData.eventType,
-                    eventData: formData.eventData
-                }
-            })]
-        }, mainAppContext.credentials);
-        setEvent({
-            txHash: `0x${response.evidence.substring(0, 64)}`,
-            evHash: response.evhash
+    const updateTxHash = event => {
+        setFormData({
+            ...formData,
+            txHash: event.target.value
         });
-        setLoading(false);
     }
+
+    const checkEvidence = async () => {
+        const evHash = createEvhash(formData.content, mainAppContext.credentials);
+        console.log(evHash);
+        setLoading(true);
+
+        const response = await fetch(`${EXPLORER_API}transaction?value=${formData.txHash}`);
+        if(response.status === 200){
+            const json = await response.json();
+            const savedEvhash = json.result.cbx_data["0"].evhash
+            console.log(savedEvhash);
+            if(savedEvhash === evHash){
+                setMessage({
+                    text: 'Contenido validado',
+                    status: 'ok'
+                });
+            } else {
+                setMessage({
+                    text: 'El contenido no coincide',
+                    status: 'no_match'
+                });
+            }
+        } else {
+            setMessage({
+                text: 'Transacción no válida',
+                status: 'not_found'
+            });
+        }
+        setLoading(false);        
+    }
+
+    console.log(message);
 
     return (
         <div
@@ -82,7 +102,7 @@ const ValidatePage = () => {
                 }}
             >
                 <h3>
-                    AÑADIR EVENTO
+                    COMPROBAR EVIDENCIA
                 </h3>
                 <TextInput
                     floatingText="Contenido a validar"
@@ -90,6 +110,13 @@ const ValidatePage = () => {
                     multiline
                     value={formData.content}
                     onChange={updateContent}
+                />
+                <TextInput
+                    floatingText="Transacción"
+                    autoFocus={true}
+                    multiline
+                    value={formData.txHash}
+                    onChange={updateTxHash}
                 />
                 <Link to="/">
                     <BasicButton
@@ -101,12 +128,12 @@ const ValidatePage = () => {
                 </Link>
 
                 <BasicButton
-                    text={'Enviar evento'}
+                    text={'Comprobar'}
                     color={primary}
                     loading={loading}
                     textStyle={{fontWeight: '700', color: 'white'}}
                     buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
-                    onClick={sendEvent}
+                    onClick={checkEvidence}
                 />
                 <div style={{marginTop: '10px'}}>
                     {loading &&
@@ -114,51 +141,43 @@ const ValidatePage = () => {
                             <LoadingSection />
                         </div>
                     }
-                    {event.txHash &&
-                        <>
-                            Link al explorador de bloques:<br />
-                            <ExplorerLink
-                                txHash={event.txHash}
-                            />
-                            <br/>
-                            Link al visualizador de traza: <br/>
-                            <Link to={`/tracking/${formData.traceId}`}>{formData.traceId}</Link>
-                        </>
-                    }
+                    {message && <MessageCard message={message} />}
                 </div>
             </Paper>
         </div>
     )
 }
 
-const addEventToTrace = async (content, account) => {
-    const contentBeforeHash = JSON.stringify({
-        type: content.type,
-        trace: content.trace,
-        fragment_hashes: content.fragments.map(fragment => web3.utils.keccak256(fragment).substring(2)),
-        descriptor: content.descriptor,
-        salt: content.salt
-    });
-    const contentHash = web3.utils.keccak256(contentBeforeHash);
-    const dataToSign = JSON.stringify({
-        version: 1,
-        nodecode: 1,
-        from: [content.trace],
-        content_hash: contentHash.substring(2)
-    });
-    const signedContent = account.sign(dataToSign);
-
-    const response = await fetch(`${API_URL}/api/v1.0/products`, {
-        method: 'POST',
-        body: JSON.stringify({
-            event_tx: signedContent.message,
-            content,
-            signature: signedContent.signature
-        })
-    });
-
-    const json = await response.json();
-    return json;
+const MessageCard = ({ message }) => {
+    return (
+        <Paper
+            style={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                padding: '1.2em'
+            }}
+        >
+            <div style={{fontSize: '1.2em', fontWeight: '700'}}>
+                {message.text}
+            </div>
+            <div style={{height: '3em'}}>
+                <StatusIcon status={message.status} />
+            </div>
+        </Paper>
+    )
 }
+
+const StatusIcon = ({ status }) => {
+
+    switch (status) {
+        case 'ok': 
+            return <i className="fas fa-check-double" style={{ fontSize: '3em', color: 'green', animation: 'enterIcon 0.7s'}}></i>
+        case 'no_match':
+            return <i className="fas fa-not-equal" style={{ fontSize: '3em', color: 'red', animation: 'enterIcon 0.7s'}}></i>
+        default:
+            return <i className="fas fa-times" style={{ fontSize: '3em', color: 'red', animation: 'enterIcon 0.7s'}}></i>
+    }
+}
+
 
 export default ValidatePage;

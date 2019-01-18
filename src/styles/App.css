@@ -31,6 +31,15 @@
   }
 }
 
+@keyframes enterIcon {
+  from {
+    font-size: 0;
+  }
+  to {
+    font-size: 3em;
+  }
+}
+
 .overflowText {
   overflow: hidden;
   text-overflow: ellipsis;

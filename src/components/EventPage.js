@@ -11,7 +11,7 @@ import { API_URL } from '../config';
 import LoadingSection from '../UI/LoadingSection';
 import ExplorerLink from './ExplorerLink';
 import bg from '../assets/img/lg-bg.png';
-
+import SentEvidenceDisplay from './SentEvidenceDisplay';
 
 const initialState = {
     traceId: '',
@@ -23,6 +23,7 @@ const EventPage = () => {
 
     const [formData, setFormData] = React.useState(initialState);
     const [loading, setLoading] = React.useState(false);
+    const [evidenceSent, setEvidenceSent] = React.useState('');
     const [event, setEvent] = React.useState({
         txHash: '',
         evHash: ''
@@ -64,6 +65,7 @@ const EventPage = () => {
             descriptor: [],
             salt: createSalt(),
         }, mainAppContext.credentials);
+        setEvidenceSent(response.evidenceSent);
         setEvent({
             txHash: `0x${response.evidence.substring(0, 64)}`,
             evHash: response.evhash
@@ -146,12 +148,15 @@ const EventPage = () => {
                     }
                     {event.txHash &&
                         <>
-                            Link al explorador de bloques:<br />
+                            {evidenceSent &&
+                                <SentEvidenceDisplay evidence={evidenceSent} />
+                            }
+                            <div style={{marginTop: '1em', fontWeight: '700'}}>Link al explorador de bloques:</div>
                             <ExplorerLink
                                 txHash={event.txHash}
                             />
                             <br/>
-                            Link al visualizador de traza: <br/>
+                            <div style={{marginTop: '1em', fontWeight: '700'}}>Link al visualizador de traza:</div>
                             <Link to={`/tracking/${formData.traceId}`}>{formData.traceId}</Link>
                         </>
                     }
@@ -178,46 +183,22 @@ const addEventToTrace = async (content, account) => {
     });
     const signedContent = account.sign(dataToSign);
 
-    const parsedEvent = JSON.parse(signedContent.message);
-    console.log(parsedEvent);
-
-    const sigHash = web3.utils.keccak256(signedContent.signature.substring(2));
-    console.log(signedContent.signature);
-    console.log(sigHash);
-
-    let stringToHash = '';
-
-    console.log(Object.keys(parsedEvent));
-
-    Object.keys(parsedEvent).forEach(key => {
-        if(key === 'from'){
-            stringToHash += parsedEvent[key].join('');
-        } else {
-            stringToHash += parsedEvent[key];
-        }
-    });
-
-    stringToHash += sigHash.substring(2);
-
-    console.log(stringToHash);
-
-    //const stringToHash = JSON.stringify(eventBeforeHash);
-
-    const evHash = web3.utils.keccak256(stringToHash);
-
-    console.log(evHash);
+    const evidence = JSON.stringify({
+        event_tx: signedContent.message,
+        content,
+        signature: signedContent.signature.substring(2)
+    })
 
     const response = await fetch(`${API_URL}/api/v1.0/products`, {
         method: 'POST',
-        body: JSON.stringify({
-            event_tx: signedContent.message,
-            content,
-            signature: signedContent.signature.substring(2)
-        })
+        body: evidence
     });
 
     const json = await response.json();
-    return json;
+    return {
+        ...json,
+        evidenceSent: evidence
+    };;
 }
 
 export default EventPage;

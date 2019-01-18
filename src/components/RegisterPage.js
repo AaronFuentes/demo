@@ -12,11 +12,13 @@ import { createSalt } from '../utils/hashUtils';
 import web3 from 'web3';
 import LoadingSection from '../UI/LoadingSection';
 import bg from '../assets/img/lg-bg.png';
+import SentEvidenceDisplay from './SentEvidenceDisplay';
 
 createSalt();
 
 const RegisterPage = ({ history }) => {
     const [code, updateBarcode] = React.useState('');
+    const [evidenceSent, setEvidenceSent] = React.useState('');
     const [loading, setLoading] = React.useState(false);
     const [product, setProduct] = React.useState({
         expirationDate: "1544896572",
@@ -67,11 +69,13 @@ const RegisterPage = ({ history }) => {
             salt: createSalt(),
         }, mainAppContext.credentials);
         setLoading(false);
+        console.log(response);
         qrValue.current.value = response.evhash;
         qrValue.current.select();
         document.execCommand('copy');
         setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.evhash}`));
         setTXHash(`0x${response.evidence.substring(0, 64)}`);
+        setEvidenceSent(response.evidenceSent);
     }
 
     const handleEnter = event => {
@@ -184,6 +188,9 @@ const RegisterPage = ({ history }) => {
                     </div>
 
                 }
+                {evidenceSent &&
+                    <SentEvidenceDisplay evidence={evidenceSent} />
+                }
                 {!!generatedCode &&
                     <>
                         <ProductTag
@@ -216,17 +223,22 @@ const sendRegisterTransaction = async (content, account) => {
 
     const signedContent = account.sign(dataToSign);
 
+    const evidence = JSON.stringify({
+        event_tx: signedContent.message,
+        content,
+        signature: signedContent.signature.substring(2)
+    })
+
     const response = await fetch(`${API_URL}/api/v1.0/products`, {
         method: 'POST',
-        body: JSON.stringify({
-            event_tx: signedContent.message,
-            content,
-            signature: signedContent.signature
-        })
+        body: evidence
     });
 
     const json = await response.json();
-    return json;
+    return {
+        ...json,
+        evidenceSent: evidence
+    };
 }
 
 export default withRouter(RegisterPage);
