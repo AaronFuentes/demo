@@ -58,6 +58,8 @@ const TrackingPage = ({ match, history }) => {
         fromTrace: focusedNode.fromTrace
      } : {};
 
+     console.log(nodeData);
+
     return (
         <Grid style={{
             height: '100%',
@@ -83,20 +85,23 @@ const TrackingPage = ({ match, history }) => {
                     }}
                 >
                     {loading?
-                        <div style={{
-                            width: '100%',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            flexDirection: 'column',
-                            fontSize: '2em',
-                            fontWeight: '700'
-                        }}>
+                        <div
+                            style={{
+                                width: '100%',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                flexDirection: 'column',
+                                fontSize: '2em',
+                                fontWeight: '700'
+                            }}
+                            id="graph-container"
+                        >
                             Cargando...
                             <LoadingSection/>
                         </div>
                     :
-                        <div style={{maxWidth: '800px', minWidth: '450px'}}>
+                        <div style={{width: '100%'}}>
                             <h3>TRAZA DEL PRODUCTO</h3>
                             <BasicButton
                                 text={rawData? 'Ver timeline' : "Ver datos smart contract"}
@@ -144,14 +149,16 @@ const TrackingPage = ({ match, history }) => {
                         <Grid>{Object.keys(nodeData.data).map(key => (
                             <React.Fragment key={`focusednode_${key}`}>
                                 <GridItem xs={4} md={4} lg={4} style={{fontWeight: '700'}}>{key}</GridItem>
-                                <GridItem xs={8} md={8} lg={8}>{nodeData.data[key]}</GridItem>
+                                <GridItem xs={8} md={8} lg={8} style={{whiteSpace: 'pre-wrap'}}>{nodeData.data[key]}</GridItem>
                             </React.Fragment>
                         ))}
                             <GridItem xs={4} md={4} lg={4} style={{fontWeight: '700'}}>Link explorador</GridItem>
                             <GridItem xs={8} md={8} lg={8}>
-                                <ExplorerLink
-                                    txHash={nodeData.tx_hash}
-                                />
+                                <div style={{width: '100%'}} className="overflowText">
+                                    <ExplorerLink
+                                        txHash={nodeData.tx_hash}
+                                    />
+                                </div>
                             </GridItem>
                             {nodeData.fromTrace &&
                                 <GridItem xs={12} md={12} lg={12}>

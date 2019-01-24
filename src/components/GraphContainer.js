@@ -10,7 +10,7 @@ const size = {
 
 const transformTraceToGraph = (trace, setNode) => {
     const offset = 95;
-    const xOffset = 65;
+    const xOffset = document.getElementById('graph-container')? (document.getElementById('graph-container').offsetWidth * 0.5) - 75 : window.innerWidth * 0.17;
     let graphHeight = 0;
     let fromOffset = 1;
     let graph = {
@@ -59,7 +59,7 @@ const transformTraceToGraph = (trace, setNode) => {
             setNode
         },
         position: {
-            x: (fromOffset - 1) * xOffset,
+            x: trace.event_tx.from.length > 0? (fromOffset - 1) * xOffset : fromOffset * xOffset,
             y: (fromOffset - 1) * offset
         },
         size
@@ -78,7 +78,7 @@ const transformTraceToGraph = (trace, setNode) => {
                     setNode
                 },
                 position: {
-                    x: (fromOffset - 1) * xOffset,
+                    x: trace.event_tx.from.length > 0? (fromOffset - 1) * xOffset : fromOffset * xOffset,
                     y: (index + fromOffset) * offset
                 },
                 size
@@ -104,9 +104,9 @@ const GraphContainer = ({ trace, setFocusedNode }) => {
     const data = transformTraceToGraph(trace, setNode);
 
     return (
-        <div style={{width: '%'}} id="graph-container">
+        <div style={{width: '100%'}} id="graph-container">
             <Graph
-                width={window.innerWidth * 0.45}
+                width={document.getElementById('graph-container')? document.getElementById('graph-container').offsetWidth : 0}
                 height={data.graphHeight}
                 json={data}
                 scale={0.6}
@@ -139,14 +139,22 @@ class TraceNode extends Node {
                         position: 'absolute',
                         top: '0px',
                         left: '25px',
-                        fontSize: '14px',
+                        width: '150px',
+                        fontSize: '12px',
                         fontWeight: '700',
                         transition: 'all 0.3s cubic-bezier(.25,.8,.25,1)'
                     }}
-                >{`${content.type} ${content.type === 'NEW_TRACE'? `- ${JSON.parse(content.fragments[0]).data.name}`: ''}`}</div>
+                >
+                    {`${translatedTypes[content.type]}: ${content.type === 'NEW_TRACE'? `- ${JSON.parse(content.fragments[0]).data.name}`: JSON.parse(content.fragments[0]).data.eventType}`}
+                </div>
             </div>
         );
     }
+}
+
+const translatedTypes = {
+    'NEW_TRACE': 'Origen',
+    'ADD_EVENT': 'Evento'
 }
 
 export default GraphContainer;

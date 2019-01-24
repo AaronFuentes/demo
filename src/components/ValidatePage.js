@@ -11,7 +11,7 @@ import { API_URL, EXPLORER_API } from '../config';
 import LoadingSection from '../UI/LoadingSection';
 import ExplorerLink from './ExplorerLink';
 import bg from '../assets/img/lg-bg.png';
-import { createEvhash } from '../utils/hashUtils';
+import { createEvhash, checkContentHash } from '../utils/hashUtils';
 import { Grid } from 'material-ui';
 
 
@@ -46,6 +46,14 @@ const ValidatePage = () => {
     }
 
     const checkEvidence = async () => {
+        if(!checkContentHash(formData.content)){
+            setMessage({
+                text: 'El contenido no coincide con el firmado',
+                status: 'no_match'
+            });
+            setLoading(false);
+            return;
+        }
         const evHash = createEvhash(formData.content, mainAppContext.credentials);
         console.log(evHash);
         setLoading(true);
@@ -72,7 +80,7 @@ const ValidatePage = () => {
                 status: 'not_found'
             });
         }
-        setLoading(false);        
+        setLoading(false);
     }
 
     console.log(message);
@@ -170,7 +178,7 @@ const MessageCard = ({ message }) => {
 const StatusIcon = ({ status }) => {
 
     switch (status) {
-        case 'ok': 
+        case 'ok':
             return <i className="fas fa-check-double" style={{ fontSize: '3em', color: 'green', animation: 'enterIcon 0.7s'}}></i>
         case 'no_match':
             return <i className="fas fa-not-equal" style={{ fontSize: '3em', color: 'red', animation: 'enterIcon 0.7s'}}></i>

@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "@babel/runtime": "7.0.0-beta.55",
+    "@react-pdf/renderer": "^1.2.1",
     "antd": "^3.10.4",
     "cross-env": "^5.2.0",
     "d3": "^5.7.0",
@@ -11,6 +12,7 @@
     "d3-force": "^2.0.0",
     "date-fns": "^1.29.0",
     "html2canvas": "^1.0.0-alpha.12",
+    "jspdf": "^1.5.3",
     "material-ui": "^1.0.0-beta.47",
     "qrcode.react": "^0.8.0",
     "react": "^16.7.0-alpha.0",

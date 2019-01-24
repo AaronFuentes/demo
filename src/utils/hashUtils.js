@@ -19,9 +19,23 @@ export const keccak256 = string => {
     return web3.utils.keccak256(string).substring(2);
 }
 
+export const checkContentHash = contentString => {
+    const parsedContent = JSON.parse(contentString);
+    const contentBeforeHash = JSON.stringify({
+        type: parsedContent.content.type,
+        trace: parsedContent.content.trace,
+        fragment_hashes: parsedContent.content.fragments.map(fragment => web3.utils.keccak256(fragment).substring(2)),
+        descriptor: parsedContent.content.descriptor,
+        salt: parsedContent.content.salt
+    });
+    const contentHash = keccak256(contentBeforeHash);
+    const parsedEvent = JSON.parse(parsedContent.event_tx);
+    return parsedEvent.content_hash === contentHash;
+}
+
 export const createEvhash = contentString => {
     const parsedContent = JSON.parse(contentString);
-    const parsedEvent = JSON.parse(parsedContent.event_tx)
+    const parsedEvent = JSON.parse(parsedContent.event_tx);
     const sigHash = keccak256(parsedContent.signature);
 
     let stringToHash = '';
@@ -48,4 +62,4 @@ export const copyStringToClipboard = str => {
     el.select();
     document.execCommand('copy');
     document.body.removeChild(el);
- }
+}

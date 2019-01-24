@@ -46,3 +46,8 @@
   white-space: nowrap;
 }
 
+#root {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+

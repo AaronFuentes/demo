@@ -5,6 +5,8 @@ import { API_URL, CLIENT_URL } from '../config';
 import TextInput from '../UI/TextInput';
 import ProductForm from './ProductForm';
 import BasicButton from '../UI/BasicButton';
+import SelectInput from '../UI/SelectInput';
+import { MenuItem } from 'material-ui';
 import { withRouter } from 'react-router-dom';
 import { MainAppContext } from '../containers/App';
 import ProductTag from './ProductTag';
@@ -13,105 +15,81 @@ import web3 from 'web3';
 import LoadingSection from '../UI/LoadingSection';
 import bg from '../assets/img/lg-bg.png';
 import SentEvidenceDisplay from './SentEvidenceDisplay';
+import { createEvidencePDF } from '../utils/documentation';
 
 createSalt();
 
+const initialProductState = {
+    expirationDate: new Date().getTime(),
+    barcode: '',
+    ingredients: '',
+    name: '',
+    other: '',
+    batch: '',
+    weight: ''
+}
+
 const RegisterPage = ({ history }) => {
-    const [code, updateBarcode] = React.useState('');
+    const [fromTX, setFrom] = React.useState('');
     const [evidenceSent, setEvidenceSent] = React.useState('');
     const [loading, setLoading] = React.useState(false);
-    const [product, setProduct] = React.useState({
-        expirationDate: "1544896572",
-        barcode: code,
-        batch: 'AE23GH',
-        euCode: 'EU/1233446/27',
-        ingredients: 'Leche pasteurizada de vaca, sal, cuajo y fermentos lácticos.',
-        name: 'Queso de mezcla madurado',
-        other: '',
-        producer: 'Quesos CBX',
-        weight: '400gr'
-    });
+    const [product, setProduct] = React.useState(initialProductState);
     const [txHash, setTXHash] = React.useState('');
     const qrValue = React.useRef(null);
-    const [barcodeError, setBarcodeError] = React.useState('');
     const [generatedCode, setCode] = React.useState(null);
     const mainAppContext = React.useContext(MainAppContext);
+    let createdTraces = localStorage.getItem('createdTraces')? JSON.parse(localStorage.getItem('createdTraces')) : [];
+
 
     const goBack = () => {
         history.goBack();
     }
 
+    const updateProduct = object => {
+        setProduct({
+            ...product,
+            ...object
+        });
+    }
+
     const cleanForm = () => {
-        setProduct(null);
-        updateBarcode('');
-        setCode(null)
+        setProduct(initialProductState);
     }
 
     const registerUnit = async () => {
         setLoading(true);
         const response = await sendRegisterTransaction({
-            type: 'NEW_TRACE', //ADD_EVENT
+            type: 'NEW_TRACE',
             trace: '0x0000000000000000000000000000000000000000000000000000000000000000',
             fragments: [JSON.stringify({
                 data: {
-                    expirationDate: "1544896572",
-                    barcode: code,
-                    batch: 'AE23GH',
-                    euCode: 'EU/1233446/27',
-                    ingredients: 'Leche pasteurizada de vaca, sal, cuajo y fermentos lácticos.',
-                    name: 'Queso de mezcla madurado',
-                    other: '',
-                    producer: 'Quesos CBX',
-                    weight: '400gr'
+                    ...product
                 }})
             ],
             descriptor: [],
             salt: createSalt(),
-        }, mainAppContext.credentials);
+        }, fromTX, mainAppContext.credentials);
         setLoading(false);
-        console.log(response);
-        qrValue.current.value = response.evhash;
-        qrValue.current.select();
-        document.execCommand('copy');
-        setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.evhash}`));
-        setTXHash(`0x${response.evidence.substring(0, 64)}`);
-        setEvidenceSent(response.evidenceSent);
+        if(response){
+            createdTraces.push(response);
+            localStorage.setItem('createdTraces', JSON.stringify(createdTraces));
+            qrValue.current.value = response.evhash;
+            qrValue.current.select();
+            document.execCommand('copy');
+            setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.evhash}`));
+            setTXHash(`0x${response.evidence.substring(0, 64)}`);
+            setEvidenceSent(response.evidenceSent);
+        }
+        else alert('fallo al guardar la transacción');
     }
 
-    const handleEnter = event => {
-        const key = event.nativeEvent;
-        if(key.keyCode === 13){
-            searchCodeData(event.target.value);
-        }
+    const updateFromTX = event => {
+        console.log(event.target.value);
+        setFrom(event.target.value);
     }
 
-    const checkValidBarcode = bc => {
-        if(bc < 2980236002700 || bc > 2980236002799){
-            setBarcodeError('El código introducido no es válido');
-            return false;
-        }
-        setBarcodeError('');
-        return true;
-    }
-
-    const searchCodeData = bc => {
-        if(checkValidBarcode(bc)){
-            const response = {
-                expirationDate: "1544896572",
-                barcode: bc,
-                batch: 'AE23GH',
-                euCode: 'EU/1233446/27',
-                ingredients: 'Leche pasteurizada de vaca, sal, cuajo y fermentos lácticos.',
-                name: 'Queso de mezcla madurado',
-                other: '',
-                producer: 'Quesos CBX',
-                weight: '400gr'
-            }
-            updateBarcode(bc);
-            setProduct(response);
-        } else {
-            setProduct(null);
-        }
+    const createPDF = () => {
+        createEvidencePDF();
     }
 
     return (
@@ -119,37 +97,48 @@ const RegisterPage = ({ history }) => {
             style={{
                 width: '100%',
                 height: '100%',
-                display: 'flex',
                 background: `url(${bg})`,
                 backgroundSize: 'cover',
                 backgroundRepeat: 'no-repeat',
                 backgroundPosition: 'center center',
-                alignItems: 'center',
+                padding: '1em 0px',
                 justifyContent: 'center',
-                overflowX: 'hidden'
+                overflowX: 'hidden',
+                overflowY: 'auto'
             }}
         >
             <Paper
                 style={{
                     width: '850px',
-                    minHeight: '85%',
                     backgroundColor: 'white',
                     padding: '2.2em',
                     paddingTop: '1em',
+                    margin: 'auto'
                 }}
             >
                 <h3>
                     ORDEN DE PRODUCCIÓN
                 </h3>
-                <TextInput
-                    floatingText="Código del producto"
+                <SelectInput
+                    floatingText="Añadir traza origen"
+                    onChange={updateFromTX}
+                    value={fromTX}
+                >
+                    {createdTraces.map(trace => (
+                        <MenuItem key={trace.evidence} value={trace.evhash}>
+                            {trace.evhash}
+                        </MenuItem>
+                    ))}
+                </SelectInput>
+{/*                 <TextInput
+                    floatingText="Añadir origen"
                     id="text-input"
-                    errorText={barcodeError}
                     autoFocus={true}
-                    onKeyUp={handleEnter}
-                />
+                    value={fromTX}
+                    onChange={updateFromTX}
+                /> */}
 
-                <ProductForm product={product} />
+                <ProductForm product={product} updateProduct={updateProduct} />
                 <input
                     type="input"
                     style={{visibility: 'hidden'}}
@@ -182,6 +171,11 @@ const RegisterPage = ({ history }) => {
                         onClick={registerUnit}
                     />
                 </div>
+
+                <BasicButton
+                    floatingText="Create pdf"
+                    onClick={createPDF}
+                />
                 {loading &&
                     <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
                         <LoadingSection />
@@ -205,7 +199,7 @@ const RegisterPage = ({ history }) => {
     )
 }
 
-const sendRegisterTransaction = async (content, account) => {
+const sendRegisterTransaction = async (content, fromTX, account) => {
     const contentBeforeHash = JSON.stringify({
         type: content.type,
         trace: content.trace,
@@ -217,7 +211,7 @@ const sendRegisterTransaction = async (content, account) => {
     const dataToSign = JSON.stringify({
         version: 1,
         nodecode: 0,
-        from: ['070899d6831eec8c5ee3c80e0f7c881de093d5c15de744a5a92618e379fca457'],
+        from: fromTX? [fromTX] : [],
         content_hash: contentHash.substring(2)
     });
 
@@ -234,11 +228,16 @@ const sendRegisterTransaction = async (content, account) => {
         body: evidence
     });
 
-    const json = await response.json();
-    return {
-        ...json,
-        evidenceSent: evidence
-    };
+    if(response.status === 200){
+        const json = await response.json();
+        return {
+            ...json,
+            evidenceSent: evidence
+        };
+    }
+
+    return null;
+
 }
 
 export default withRouter(RegisterPage);

@@ -3,7 +3,7 @@ import TextInput from '../UI/TextInput';
 import BasicButton from '../UI/BasicButton';
 import { withRouter } from 'react-router-dom';
 import { Paper } from 'material-ui';
-import { lightGrey } from '../styles/colors';
+import { lightGrey, primary } from '../styles/colors';
 import { extractHashFromURL } from '../utils/hashUtils';
 import bg from '../assets/img/lg-bg.png';
 
@@ -21,6 +21,10 @@ const EnterTrackingHashForm = ({ history }) => {
 
     const goBack = () => {
         history.goBack();
+    }
+
+    const search = () => {
+        enterCode(hash.trim());
     }
 
     const handleKeyUp = (event) => {
@@ -71,6 +75,13 @@ const EnterTrackingHashForm = ({ history }) => {
                     textStyle={{fontWeight: '700', color: 'black'}}
                     buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
                     onClick={goBack}
+                />
+                <BasicButton
+                    text="Buscar"
+                    color={primary}
+                    textStyle={{fontWeight: '700', color: 'white'}}
+                    buttonStyle={{marginRight: '0.3em', marginTop: '2em'}}
+                    onClick={search}
                 />
             </Paper>
         </div>

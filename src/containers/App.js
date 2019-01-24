@@ -12,6 +12,7 @@ import TrackingPage from '../components/TrackingPage';
 import RegisterPage from '../components/RegisterPage';
 import ShippingPage from '../components/ShippingPage';
 import DeliveryPage from '../components/DeliveryPage';
+import PDFPreviewPage from '../components/PDFPreviewPage';
 import ValidatePage from '../components/ValidatePage';
 import EventPage from '../components/EventPage';
 import "antd/dist/antd.css";
@@ -28,7 +29,7 @@ class App extends React.Component {
 
     state = {
         credentials: null,
-        inTransit: false
+        inTransit: false,
     }
 
     goToRoot = () => <Redirect to="/" />
@@ -74,6 +75,7 @@ class App extends React.Component {
     }
 
     render() {
+        console.log(this.state);
         return (
             <ThemeProvider>
                 <MainAppContext.Provider value={{
@@ -98,12 +100,14 @@ class App extends React.Component {
                                             <Route path="/delivery" component={DeliveryPage} />
                                             <Route path="/validate" component={ValidatePage} />
                                             <Route path="/tracking/:hash?" component={TrackingPage} />
+                                            <Route path="/document/:hash?" component={PDFPreviewPage} />
                                             <Route path="*" component={this.goToRoot} />
                                         </Switch>
                                     :
                                         <Switch>
                                             <Route exact path="/" component={LoginPage} />
                                             <Route path="/tracking/:hash?" component={TrackingPage} />
+                                            <Route path="/document/:hash?" component={PDFPreviewPage} />
                                             <Route path="*" component={this.goToRoot} />
                                         </Switch>
                                     }

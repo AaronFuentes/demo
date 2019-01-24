@@ -2,10 +2,14 @@ import React from 'react';
 import { darkGrey } from '../styles/colors';
 import { isMobile } from 'react-device-detect';
 
+const date = new Date()
+
+const year = date.getFullYear();
+
 const Footer = props => (
     <div style={{fontSize: '11px', marginTop: isMobile? '1.2em' : '-0.2em', width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', height: '1em'}}>
         <div
-            dangerouslySetInnerHTML={{ __html: `Copyright &copy 2018`}}
+            dangerouslySetInnerHTML={{ __html: `Copyright &copy ${year}`}}
         />
         <a href="https://www.councilbox.com" style={{marginLeft: '0.2em', marginRight: '0.2em', color: darkGrey}}>Councilbox Technology S.L.</a>
         <div
