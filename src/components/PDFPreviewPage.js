@@ -80,7 +80,7 @@ const PDFPreviewPage = ({ match }) => {
                                 </GridItem><br/>
                             </Grid>
                         </Card>
-                        {data.event_tx.from &&
+                        {data.event_tx.from.length > 0 &&
                             <Card style={{padding: '0.6em', marginTop: '0.8em'}}>
                             <h3>Datos de origen</h3>
                             <Grid>

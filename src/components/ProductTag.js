@@ -33,6 +33,12 @@ class ProductTag extends React.Component {
             <div style={{width: '100%', overflow: 'hidden',}}>
                 <Grid style={{textAlign: 'left', marginBottom: '1em'}}>
                     <GridItem xs={12} md={4} lg={3} stlye={{display: 'flex', justifyContent: 'flex-start'}}>
+                        <span style={{fontWeight: '700'}}>DOCUMENTO:</span>
+                    </GridItem>
+                    <GridItem xs={12} md={8} lg={9} stlye={{display: 'flex', justifyContent: 'flex-start'}}>
+                        <a href={`${window.location.origin}/document/${extractHashFromURL(qr).slice(0, extractHashFromURL(qr).length - 1)}`}>Ver documento de trazabilidad</a>
+                    </GridItem>
+                    <GridItem xs={12} md={4} lg={3} stlye={{display: 'flex', justifyContent: 'flex-start'}}>
                         <span style={{fontWeight: '700'}}>EV. HASH:</span>
                     </GridItem>
                     <GridItem xs={12} md={8} lg={9} stlye={{display: 'flex', justifyContent: 'flex-start'}}>

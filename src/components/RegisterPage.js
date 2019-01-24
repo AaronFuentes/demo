@@ -78,7 +78,7 @@ const RegisterPage = ({ history }) => {
             document.execCommand('copy');
             setCode(JSON.stringify(`${CLIENT_URL}/tracking/${response.evhash}`));
             setTXHash(`0x${response.evidence.substring(0, 64)}`);
-            setEvidenceSent(response.evidenceSent);
+            setEvidenceSent(response);
         }
         else alert('fallo al guardar la transacción');
     }
@@ -130,13 +130,6 @@ const RegisterPage = ({ history }) => {
                         </MenuItem>
                     ))}
                 </SelectInput>
-{/*                 <TextInput
-                    floatingText="Añadir origen"
-                    id="text-input"
-                    autoFocus={true}
-                    value={fromTX}
-                    onChange={updateFromTX}
-                /> */}
 
                 <ProductForm product={product} updateProduct={updateProduct} />
                 <input
@@ -171,11 +164,6 @@ const RegisterPage = ({ history }) => {
                         onClick={registerUnit}
                     />
                 </div>
-
-                <BasicButton
-                    floatingText="Create pdf"
-                    onClick={createPDF}
-                />
                 {loading &&
                     <div style={{width: '100%', display: 'flex', justifyContent: 'center'}}>
                         <LoadingSection />
@@ -183,11 +171,12 @@ const RegisterPage = ({ history }) => {
 
                 }
                 {evidenceSent &&
-                    <SentEvidenceDisplay evidence={evidenceSent} />
+                    <SentEvidenceDisplay evidence={evidenceSent.evidenceSent} />
                 }
                 {!!generatedCode &&
                     <>
                         <ProductTag
+                            evHash={evidenceSent.evHash}
                             product={product}
                             qr={generatedCode}
                             txHash={txHash}
